@@ -157,6 +157,7 @@ final class StockfishEngineTests: XCTestCase {
         let positions = [(Self.startpos, Self.startposMoves), (Self.queenEnding, Self.queenEndingMoves)]
         var consumers: [Task<[EngineSnapshot], Never>] = []
         var expected: [(fen: String, moves: Set<String>)] = []
+        var stopCycles = 0
 
         for cycle in 0..<50 {
             let (fen, moves) = positions[cycle % 2]
@@ -171,9 +172,16 @@ final class StockfishEngineTests: XCTestCase {
 
             try await Task.sleep(nanoseconds: UInt64((cycle % 4) * 15_000_000))
             switch cycle % 5 {
-            case 1: consumer.cancel()            // consumer walks away
-            case 3: engine.stop()                // explicit stop, stream gets its final snapshot
-            default: break                       // superseded by the next analyze
+            case 1:
+                consumer.cancel()                // consumer walks away
+            case 3:
+                engine.stop()                    // explicit stop: the stream ends with a final snapshot
+                let received = await consumer.value
+                XCTAssertEqual(received.last?.isFinal, true, "cycle \(cycle)")
+                XCTAssertTrue(moves.contains(received.last?.bestMove ?? ""), "cycle \(cycle)")
+                stopCycles += 1
+            default:
+                break                            // superseded by the next analyze
             }
         }
 
@@ -199,7 +207,8 @@ final class StockfishEngineTests: XCTestCase {
                 }
             }
         }
-        XCTAssertGreaterThan(total, 0)
+        XCTAssertGreaterThanOrEqual(total, stopCycles)
+        XCTAssertEqual(stopCycles, 10)
     }
 
     func testSnapshotsAreThrottled() async throws {

@@ -18,7 +18,7 @@ struct ScanReviewView: View {
         self.onClose = onClose
         let result = review.result
         var lastMove: Move?
-        if case .lastMove(let move) = result.evidence { lastMove = move }
+        if case .highlight(_, let move) = result.evidence { lastMove = move }
         _editor = State(initialValue: PositionEditorModel(position: result.position, orientation: result.orientation,
                                                           uncertain: result.uncertainSquares, detectedLastMove: lastMove))
     }
@@ -111,9 +111,10 @@ struct ScanReviewView: View {
                          text: "\(uncertain) \(uncertain == 1 ? "square looks" : "squares look") uncertain — outlined on the board. Tap a piece below, then a square to fix it.")
             }
             switch review.result.evidence {
-            case .lastMove(let move):
+            case .highlight(let mover, let move):
+                let moveText = move.map { " (\($0.from.name) → \($0.to.name))" } ?? ""
                 infoLine(icon: "arrow.right.circle.fill", tint: Palette.gold,
-                         text: "Last move highlighted: \(move.from.name) → \(move.to.name). \(review.result.position.sideToMove.name) is to move.")
+                         text: "\(mover.name) just moved\(moveText), so it's \(mover.opposite.name)'s turn.")
             case .check(let color):
                 infoLine(icon: "bolt.circle.fill", tint: Palette.gold,
                          text: "\(color.name)'s king is in check, so it's \(color.name)'s move.")

@@ -195,15 +195,15 @@ struct AnalysisView: View {
                 Haptics.move()
                 model.play(best)
             } label: {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .center) {
                         Text("Best move").eyebrowStyle(Palette.gold)
                         Spacer()
                         ScoreChip(score: line.score, large: true)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
                         Text(san)
-                            .font(.display(40, weight: .bold))
+                            .font(.display(34, weight: .bold))
                             .foregroundStyle(Palette.textPrimary)
                             .contentTransition(.opacity)
                         Text(description.title)
@@ -211,23 +211,19 @@ struct AnalysisView: View {
                             .foregroundStyle(Palette.textSecondary)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
-                    }
-                    Text(description.detail)
-                        .font(.system(size: 15))
-                        .foregroundStyle(Palette.textSecondary)
-                    Divider().overlay(Palette.stroke)
-                    HStack {
-                        Text(line.score.verdict)
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(Palette.textPrimary)
-                        Spacer()
-                        Label("Play it", systemImage: "arrow.turn.down.right")
-                            .font(.system(size: 14, weight: .semibold))
+                        Spacer(minLength: 0)
+                        Image(systemName: "arrow.turn.down.right")
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(Palette.gold)
+                            .accessibilityLabel("Play it")
                     }
+                    Text("\(description.detail) \(line.score.verdict).")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .card(padding: 18)
+                .card(padding: 16)
             }
             .buttonStyle(PressableStyle())
             .animation(.easeInOut(duration: 0.2), value: san)

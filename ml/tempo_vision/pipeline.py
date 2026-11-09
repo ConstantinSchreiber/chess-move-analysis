@@ -298,8 +298,10 @@ def placement_fen(board):
 
 # ----------------------------------------------------------------------------- main entry
 
-def scan(backend, img, zoom=True):
-    """img: RGB uint8 (EXIF orientation already applied)."""
+def scan(backend, img, zoom=True, corners=None):
+    """img: RGB uint8 (EXIF orientation already applied). `corners` skips detection (e.g. user-adjusted quad)."""
+    if corners is not None:
+        return read_board(backend, img, np.asarray(corners, np.float32), 1.0)
     corners, conf = detect_pass(backend, img)
     if conf < DETECT_MIN_CONF or not quad_ok(corners):
         return ScanResult(found=False, corners=corners, detector_conf=conf)
@@ -309,7 +311,10 @@ def scan(backend, img, zoom=True):
         c2 = c2 + off
         if conf2 >= ZOOM_MIN_CONF_RATIO * conf and quad_ok(c2):
             corners, conf = c2, max(conf, conf2)
+    return read_board(backend, img, corners, conf)
 
+
+def read_board(backend, img, corners, conf):
     warped = warp_board(img, corners, backend.R)
     probs, hl, p_flip = backend.read(warped)
     cls = probs.argmax(-1)
@@ -324,7 +329,7 @@ def scan(backend, img, zoom=True):
         for c in range(8):
             sq = cell_to_square(r, c, flipped)
             board[sq] = cls[r, c]
-            sqprob[sq] = probs[r, c].max()
+            sqprob[sq] = probs[r, c, cls[r, c]]  # prob of the class we report (may differ from argmax after fixes)
             if hl[r, c] > HIGHLIGHT_PROB:
                 hl_list.append((sq, float(hl[r, c])))
     hl_list.sort(key=lambda t: -t[1])

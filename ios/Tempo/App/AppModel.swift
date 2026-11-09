@@ -17,6 +17,8 @@ final class AppModel {
     var isScanPresented = false
     var isSettingsPresented = false
     var setupRequest: SetupRequest?
+    /// An image the scan sheet should recognise as soon as it opens (samples, shortcuts, debug).
+    var pendingScanImage: UIImage?
 
     struct SetupRequest: Identifiable {
         let id = UUID()
@@ -37,6 +39,32 @@ final class AppModel {
         path.removeAll()
         isScanPresented = true
     }
+
+    func scan(_ image: UIImage) {
+        pendingScanImage = image
+        startScan()
+    }
+
+    #if DEBUG
+    /// Launch arguments for screenshots and manual testing:
+    /// `-demoScan sample-photo`, `-demoAnalysis <FEN>`, `-demoSetup`, `-demoSettings`.
+    func applyDebugLaunchArguments() {
+        let args = ProcessInfo.processInfo.arguments
+        func value(after flag: String) -> String? {
+            guard let i = args.firstIndex(of: flag), i + 1 < args.count else { return nil }
+            return args[i + 1]
+        }
+        if let sample = value(after: "-demoScan"), let image = SampleImages.all.first(where: { $0.id == sample })?.image {
+            scan(image)
+        } else if let fen = value(after: "-demoAnalysis"), let position = try? Position(fen: fen) {
+            analyze(position: position, orientation: position.sideToMove, source: .board)
+        } else if args.contains("-demoSetup") {
+            openSetup()
+        } else if args.contains("-demoSettings") {
+            isSettingsPresented = true
+        }
+    }
+    #endif
 
     func openBoard() {
         analyze(position: .start, orientation: .white, source: .board)

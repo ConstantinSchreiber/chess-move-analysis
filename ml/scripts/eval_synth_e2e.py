@@ -1,4 +1,8 @@
 """End-to-end synthetic evaluation: fresh scenes (unseen seed) through the full pipeline."""
+import os
+for _k in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    os.environ.setdefault(_k, "1")  # one thread per process: the machine is shared
+
 import argparse, os, random, sys
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

@@ -57,23 +57,45 @@ struct RGBAImage {
         }
     }
 
-    /// The `letterbox.crop` region scaled uniformly into a black square of `letterbox.target` pixels.
+    /// The `letterbox.crop` region resized to `nw × nh` and placed at `(ox, oy)` on a black square
+    /// of `letterbox.target` pixels. Parts of the crop outside the image stay black.
     func letterboxedPixelBuffer(_ letterbox: Letterbox) -> CVPixelBuffer? {
         guard let image = cgImage() else { return nil }
         let s = CGFloat(letterbox.target)
         return Self.makeBuffer(size: letterbox.target) { context in
             context.setFillColor(CGColor(gray: 0, alpha: 1))
             context.fill(CGRect(x: 0, y: 0, width: s, height: s))
-            // Content area in top-down coordinates, converted to Core Graphics' bottom-up space.
-            let content = CGRect(x: letterbox.padX, y: letterbox.padY,
-                                 width: letterbox.crop.width * letterbox.scale, height: letterbox.crop.height * letterbox.scale)
-            context.clip(to: CGRect(x: content.minX, y: s - content.maxY, width: content.width, height: content.height))
-            let originX = letterbox.padX - letterbox.crop.minX * letterbox.scale
-            let originTop = letterbox.padY - letterbox.crop.minY * letterbox.scale
-            let drawW = CGFloat(width) * letterbox.scale, drawH = CGFloat(height) * letterbox.scale
+            // Work in top-down coordinates like the rest of the pipeline.
+            context.translateBy(x: 0, y: s)
+            context.scaleBy(x: 1, y: -1)
+            context.clip(to: CGRect(x: letterbox.ox, y: letterbox.oy, width: letterbox.nw, height: letterbox.nh))
+            let rect = CGRect(x: CGFloat(letterbox.ox) - letterbox.crop.minX * letterbox.sx,
+                              y: CGFloat(letterbox.oy) - letterbox.crop.minY * letterbox.sy,
+                              width: CGFloat(width) * letterbox.sx, height: CGFloat(height) * letterbox.sy)
             context.interpolationQuality = .high
-            context.draw(image, in: CGRect(x: originX, y: s - originTop - drawH, width: drawW, height: drawH))
+            // CGContext.draw puts the image's first row at the rect's max-y; flip locally so it lands on top.
+            context.saveGState()
+            context.translateBy(x: 0, y: rect.minY + rect.maxY)
+            context.scaleBy(x: 1, y: -1)
+            context.draw(image, in: rect)
+            context.restoreGState()
         }
+    }
+
+    /// Uniformly rescaled copy (high-quality filtering), e.g. before warping a very large board.
+    func scaled(by factor: CGFloat) -> RGBAImage? {
+        guard let image = cgImage() else { return nil }
+        let w = max(1, Int((CGFloat(width) * factor).rounded())), h = max(1, Int((CGFloat(height) * factor).rounded()))
+        var out = [UInt8](repeating: 0, count: w * h * 4)
+        let ok = out.withUnsafeMutableBytes { buffer -> Bool in
+            guard let context = CGContext(data: buffer.baseAddress, width: w, height: h, bitsPerComponent: 8, bytesPerRow: w * 4,
+                                          space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                                          bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return false }
+            context.interpolationQuality = .high
+            context.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
+            return true
+        }
+        return ok ? RGBAImage(width: w, height: h, pixels: out) : nil
     }
 
     private static func makeBuffer(size: Int, draw: (CGContext) -> Void) -> CVPixelBuffer? {

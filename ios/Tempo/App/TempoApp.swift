@@ -13,7 +13,13 @@ struct TempoApp: App {
                 .environment(\.pieceSet, app.settings.pieceSet)
                 .preferredColorScheme(.dark)
                 .tint(Palette.gold)
-                .task { await app.warmUpEngine() }
+                .task {
+                    #if DEBUG
+                    app.applyDebugLaunchArguments()
+                    #endif
+                    BoardRecognizer.shared.preload()
+                    await app.warmUpEngine()
+                }
                 .onChange(of: app.settings.haptics, initial: true) { _, enabled in Haptics.isEnabled = enabled }
         }
     }

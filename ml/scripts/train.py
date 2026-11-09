@@ -3,6 +3,10 @@
   python scripts/train.py detector --data data/det_v1 --out checkpoints/detector.pt
   python scripts/train.py reader   --data data/reader_v1 --out checkpoints/reader.pt
 """
+import os
+for _k in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    os.environ.setdefault(_k, "1")  # one thread per process: the machine is shared
+
 import argparse, math, os, random, sys, time
 import cv2
 import numpy as np
@@ -32,18 +36,32 @@ def color_aug(img, rng):
     return np.clip(img, 0, 255)
 
 
+def load_labels(root):
+    """labels.npz if the run finished, else the per-chunk shards written so far. Adds `idx` (image ids)."""
+    p = os.path.join(root, "labels.npz")
+    if os.path.exists(p):
+        d = dict(np.load(p))
+    else:
+        import glob
+        parts = [dict(np.load(f)) for f in sorted(glob.glob(os.path.join(root, "shards", "*.npz")))]
+        d = {k: np.concatenate([x[k] for x in parts]) for k in parts[0]}
+    if "idx" not in d:
+        d["idx"] = np.arange(len(next(iter(d.values()))))
+    return d
+
+
 class DetData(Dataset):
-    def __init__(self, root, idx, train):
-        self.root, self.idx, self.train = root, idx, train
-        self.corners = np.load(os.path.join(root, "labels.npz"))["corners"]
+    def __init__(self, root, labels, rows, train):
+        self.root, self.rows, self.train = root, rows, train
+        self.ids, self.corners = labels["idx"], labels["corners"]
 
     def __len__(self):
-        return len(self.idx)
+        return len(self.rows)
 
     def __getitem__(self, k):
-        i = self.idx[k]
-        img = cv2.imread(os.path.join(self.root, "images", f"{i:07d}.jpg"))[..., ::-1]
-        c = self.corners[i].copy()
+        row = self.rows[k]
+        img = cv2.imread(os.path.join(self.root, "images", f"{self.ids[row]:07d}.jpg"))[..., ::-1]
+        c = self.corners[row].copy()
         has = not np.isnan(c).any()
         S = img.shape[0]
         if self.train:
@@ -65,22 +83,26 @@ class DetData(Dataset):
 
 
 class ReaderData(Dataset):
-    def __init__(self, root, idx, train):
-        self.root, self.idx, self.train = root, idx, train
-        d = np.load(os.path.join(root, "labels.npz"))
-        self.cells, self.hl, self.flipped = d["cells"], d["hl"], d["flipped"]
+    def __init__(self, root, labels, rows, train):
+        self.root, self.rows, self.train = root, rows, train
+        self.ids, self.cells, self.hl, self.flipped = labels["idx"], labels["cells"], labels["hl"], labels["flipped"]
 
     def __len__(self):
-        return len(self.idx)
+        return len(self.rows)
 
     def __getitem__(self, k):
-        i = self.idx[k]
-        img = cv2.imread(os.path.join(self.root, "images", f"{i:07d}.jpg"))[..., ::-1]
+        i = self.rows[k]
+        img = cv2.imread(os.path.join(self.root, "images", f"{self.ids[i]:07d}.jpg"))[..., ::-1]
         if self.train:
             img = color_aug(img, random.Random())
         x = torch.from_numpy(np.ascontiguousarray(img, dtype=np.float32) / 255.0).permute(2, 0, 1)
         return (x, torch.from_numpy(self.cells[i].astype(np.int64)), torch.from_numpy(self.hl[i].astype(np.float32)),
                 torch.tensor(float(self.flipped[i])))
+
+
+def worker_init(_):
+    cv2.setNumThreads(0)
+    torch.set_num_threads(1)
 
 
 def split(n, val):
@@ -149,24 +171,27 @@ def main():
     ap.add_argument("--bs", type=int, default=32)
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--val", type=int, default=1500)
-    ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--init", default=None)
     ap.add_argument("--max-steps", type=int, default=0)
     a = ap.parse_args()
     dev = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    torch.set_num_threads(2)
+    cv2.setNumThreads(0)
     torch.manual_seed(0)
 
     trains, vals = [], []
     for root in a.data:
-        n = len(os.listdir(os.path.join(root, "images")))
-        tr, va = split(n, a.val)
+        labels = load_labels(root)
+        tr, va = split(len(labels["idx"]), a.val)
         D = DetData if a.kind == "detector" else ReaderData
-        trains.append(D(root, tr, True))
-        vals.append(D(root, va, False))
+        trains.append(D(root, labels, tr, True))
+        vals.append(D(root, labels, va, False))
+        print(root, "train", len(tr), "val", len(va), flush=True)
     train_ds, val_ds = ConcatDataset(trains), ConcatDataset(vals)
     tl = DataLoader(train_ds, batch_size=a.bs, shuffle=True, num_workers=a.workers, drop_last=True,
-                    persistent_workers=True, prefetch_factor=4)
-    vl = DataLoader(val_ds, batch_size=64, shuffle=False, num_workers=a.workers)
+                    persistent_workers=True, prefetch_factor=4, worker_init_fn=worker_init)
+    vl = DataLoader(val_ds, batch_size=64, shuffle=False, num_workers=a.workers, worker_init_fn=worker_init)
 
     model = (BoardDetector() if a.kind == "detector" else BoardReader()).to(dev)
     if a.init:

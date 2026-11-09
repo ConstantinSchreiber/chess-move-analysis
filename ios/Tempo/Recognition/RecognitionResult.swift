@@ -4,8 +4,8 @@ import ChessCore
 /// What the recogniser read from a photo or screenshot.
 struct RecognitionResult {
     enum SideToMoveEvidence: Equatable {
-        /// A last-move highlight was found; the piece on `move.to` belongs to the side that just moved.
-        case lastMove(Move)
+        /// A last-move highlight was found: `mover` just moved (`move` is known when one square was empty).
+        case highlight(mover: PieceColor, move: Move?)
         /// This side's king is in check, so it must be their move.
         case check(PieceColor)
         /// No evidence — defaulted to White.

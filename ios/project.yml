@@ -73,3 +73,29 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: com.constantinschreiber.tempo
             CFBundleURLSchemes: [tempo]
+  TempoTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [TempoTests]
+    dependencies:
+      - target: Tempo
+      - package: ChessCore
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.tempo.tests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Tempo.app/Tempo"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  Tempo:
+    build:
+      targets:
+        Tempo: all
+        TempoTests: [test]
+    test:
+      targets: [TempoTests]
+    run:
+      config: Debug
+    archive:
+      config: Release
+

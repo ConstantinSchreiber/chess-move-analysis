@@ -42,6 +42,12 @@ struct ScanFlowView: View {
                 photoItem = nil
             }
         }
+        .onAppear {
+            if let image = app.pendingScanImage {
+                app.pendingScanImage = nil
+                recognize(image)
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)) { _ in
             clipboardHasImage = UIPasteboard.general.hasImages
         }

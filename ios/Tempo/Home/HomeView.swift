@@ -8,13 +8,8 @@ struct HomeView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 HeroView()
-                    .frame(height: 430)
+                    .frame(height: 440)
                     .overlay(alignment: .bottomLeading) { headline }
-                    .overlay(alignment: .topTrailing) {
-                        CircleIconButton(systemName: "gearshape", label: "Settings") { app.isSettingsPresented = true }
-                            .padding(.trailing, 20)
-                            .padding(.top, 8)
-                    }
 
                 VStack(alignment: .leading, spacing: 14) {
                     Button {
@@ -49,6 +44,11 @@ struct HomeView: View {
         }
         .scrollIndicators(.hidden)
         .ignoresSafeArea(edges: .top)
+        .overlay(alignment: .topTrailing) {
+            CircleIconButton(systemName: "gearshape", label: "Settings") { app.isSettingsPresented = true }
+                .padding(.trailing, 20)
+                .padding(.top, 4)
+        }
         .background(Palette.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
     }
@@ -123,7 +123,7 @@ private struct ActionTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             IconTile(systemName: icon, size: 42)
-            Spacer(minLength: 22)
+            Spacer(minLength: 16)
             Text(title)
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(Palette.textPrimary)
@@ -132,7 +132,7 @@ private struct ActionTile: View {
                 .foregroundStyle(Palette.textSecondary)
                 .padding(.top, 2)
         }
-        .frame(maxWidth: .infinity, minHeight: 138, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 120, alignment: .leading)
         .card(padding: 16, radius: 22)
     }
 }

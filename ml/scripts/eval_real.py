@@ -15,6 +15,7 @@ ap.add_argument("--coreml")
 ap.add_argument("--torch", nargs=2)
 ap.add_argument("--viz")
 ap.add_argument("--no-zoom", action="store_true")
+ap.add_argument("--gt-corners", action="store_true", help="skip the detector, use labelled corners (reader-only eval)")
 a = ap.parse_args()
 be = CoreMLBackend(a.coreml) if a.coreml else TorchBackend(*a.torch)
 if a.viz:
@@ -31,7 +32,10 @@ for d in a.dirs:
                                last_move=smp["last_move"]))
     for L in labels:
         img = np.asarray(ImageOps.exif_transpose(Image.open(os.path.join(d, L["file"]))).convert("RGB"))
-        res = scan(be, img, zoom=not a.no_zoom)
+        gt_c = np.array(L["corners"], np.float32) if "corners" in L else None
+        if a.gt_corners and gt_c is None:
+            continue
+        res = scan(be, img, zoom=not a.no_zoom, corners=gt_c if a.gt_corners else None)
         gt_place = L["fen"].split()[0]
         if not res.found:
             print(f"{L['file']:32s} NOT FOUND conf={res.detector_conf:.2f}")
@@ -51,7 +55,10 @@ for d in a.dirs:
         tot["stm"] += ok_stm
         tot["squares"] += 64 - len(diff)
         tot["full"] += ok_place and ok_stm
-        print(f"{L['file']:32s} place={'OK' if ok_place else 'XX'} orient={'OK' if ok_orient else 'XX'}(p={res.flipped_prob:.2f}) "
+        cerr = ""
+        if gt_c is not None:
+            cerr = f"cornerErr={np.linalg.norm(res.corners - gt_c, axis=1).max() / np.linalg.norm(gt_c[1] - gt_c[0]) * 100:.2f}% "
+        print(f"{L['file']:32s} {cerr}place={'OK' if ok_place else 'XX'} orient={'OK' if ok_orient else 'XX'}(p={res.flipped_prob:.2f}) "
               f"stm={'OK' if ok_stm else 'XX'}({res.side_to_move},{res.stm_source}) conf={res.detector_conf:.2f} "
               f"wrong={diff} uncertain={res.uncertain} last={res.last_move}")
         if a.viz:
