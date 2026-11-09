@@ -29,3 +29,6 @@ __pycache__/
 
 # Third-party / personal test captures (chess.com screenshots, user photos)
 ml/testdata/private/
+
+# Playwright MCP scratch output
+.playwright-mcp/

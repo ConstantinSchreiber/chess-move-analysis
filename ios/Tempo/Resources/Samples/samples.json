@@ -1,0 +1,61 @@
+{
+ "samples": [
+  {
+   "file": "sample-screenshot.jpg",
+   "fen": "r1bqk2r/pppp1ppp/2n5/3P4/2B1n3/2b2N2/PP3PPP/R1BQ1RK1 b kq - 0 9",
+   "kind": "screenshot",
+   "title": "Screenshot",
+   "corners": [
+    [
+     0.0,
+     560.0
+    ],
+    [
+     1179.0,
+     560.0
+    ],
+    [
+     1179.0,
+     1739.0
+    ],
+    [
+     0.0,
+     1739.0
+    ]
+   ],
+   "last_move": [
+    "d4",
+    "d5"
+   ]
+  },
+  {
+   "file": "sample-photo.jpg",
+   "fen": "r1bq1rk1/pp1nbppp/2p1p3/3n2B1/2BP4/2N1PN2/PP3PPP/2RQK2R w K - 1 10",
+   "kind": "photo",
+   "title": "Photo of a screen",
+   "corners": [
+    [
+     120.0999984741211,
+     693.5
+    ],
+    [
+     904.9000244140625,
+     671.4000244140625
+    ],
+    [
+     896.0999755859375,
+     1484.800048828125
+    ],
+    [
+     139.0,
+     1468.800048828125
+    ]
+   ],
+   "last_move": [
+    "f6",
+    "d5"
+   ]
+  }
+ ],
+ "note": "Rendered with cburnett pieces (BSD/GPL, Colin M.L. Burnett) and Pillow's bundled Aileron font (CC0). Corners: TL,TR,BR,BL in image pixels."
+}
