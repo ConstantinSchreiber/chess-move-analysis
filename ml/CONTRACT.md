@@ -33,6 +33,9 @@ the model description (`imageConstraint.pixelsWide`) — don't hard-code 384.
 | out | `highlight` | Float32 `[1, 8, 8]` | sigmoid; square tinted as last-move highlight |
 | out | `flipped` | Float32 `[1]` | sigmoid; P(board shown from Black's side, h1 top-left) |
 
+Compute units: `.cpuAndNeuralEngine` on device. In the iOS **Simulator** use `.cpuOnly` — its GPU path
+returns all-zero heatmaps for these fp16 models (seen by the app team).
+
 Flat index into `pieces`: `((row * 8) + col) * 13 + class` (check `strides` if you use the raw pointer).
 
 ## Pipeline (constants in `pipeline.py`)
