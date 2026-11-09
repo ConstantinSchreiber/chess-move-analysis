@@ -1,0 +1,31 @@
+# macOS / editors
+.DS_Store
+*.swp
+.vscode/
+
+# Design references (third-party app screenshots + personal photos) — kept local only
+references/
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+.swiftpm/
+.build/
+
+# Stockfish NNUE networks (downloaded by ios/scripts/fetch-nnue.sh)
+*.nnue
+
+# ML pipeline caches, datasets, checkpoints
+ml/.venv/
+ml/.cache/
+ml/data/
+ml/runs/
+ml/checkpoints/
+__pycache__/
+*.pyc
+
+# Third-party / personal test captures (chess.com screenshots, user photos)
+ml/testdata/private/
