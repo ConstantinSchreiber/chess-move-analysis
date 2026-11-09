@@ -59,7 +59,13 @@ final class BoardRecognizer: @unchecked Sendable {
     private func loadModels() throws {
         if detector != nil, reader != nil { return }
         let config = MLModelConfiguration()
-        config.computeUnits = .all
+        #if targetEnvironment(simulator)
+        // The simulator's GPU path returns zeros for these fp16 models.
+        config.computeUnits = .cpuOnly
+        #else
+        // Neural Engine (fp16-native, frugal) with CPU fallback; the GPU isn't needed.
+        config.computeUnits = .cpuAndNeuralEngine
+        #endif
         guard let detectorURL = Bundle.main.url(forResource: "BoardDetector", withExtension: "mlmodelc"),
               let readerURL = Bundle.main.url(forResource: "BoardReader", withExtension: "mlmodelc") else {
             throw RecognitionError.modelUnavailable
@@ -131,15 +137,9 @@ final class BoardRecognizer: @unchecked Sendable {
         guard let heatmaps = out.featureValue(for: "heatmaps")?.multiArrayValue else { throw RecognitionError.modelUnavailable }
         let shape = heatmaps.shape.map(\.intValue)
         let (h, w) = (shape[shape.count - 2], shape[shape.count - 1])
-        let values = heatmaps.floats()
-        var points: [CGPoint] = []
-        var confidence = Float.infinity
-        for c in 0..<4 {
-            let (cell, peak) = HeatmapDecoder.peak(values, channel: c, width: w, height: h)
-            confidence = min(confidence, peak)
-            points.append(letterbox.toSource(CGPoint(x: cell.x * Self.detectorStride, y: cell.y * Self.detectorStride)))
-        }
-        return (points, confidence)
+        let (cells, peaks) = HeatmapDecoder.decodeQuad(heatmaps.floats(), width: w, height: h)
+        let points = cells.map { letterbox.toSource(CGPoint(x: $0.x * Self.detectorStride, y: $0.y * Self.detectorStride)) }
+        return (points, peaks.min() ?? 0)
     }
 
     // MARK: Interpretation (steps 7–14; pure, unit-testable)
@@ -291,9 +291,89 @@ final class BoardRecognizer: @unchecked Sendable {
 
 private func distance(_ a: CGPoint, _ b: CGPoint) -> CGFloat { hypot(a.x - b.x, a.y - b.y) }
 
-/// Peak finding with sub-cell refinement (parabola through log-values, as in `decode.py`).
+/// Corner decoding from the detector heat maps (`decode.py`). Points are in heat-map cell units
+/// (cell centres at +0.5); multiply by the detector stride for letterbox pixels.
 enum HeatmapDecoder {
-    /// Returns the peak in heatmap-cell units (cell centres at +0.5) and its value.
+    static let peakMin: Float = 0.1
+    static let peaksPerCorner = 4
+    static let geoWeight = 1.5
+    private static let eps = 1e-6
+
+    /// `decode_quad`: among the top local maxima of each channel, choose the convex clockwise quad
+    /// maximising Σ ln(v) − geoWeight · shapePenalty. Falls back to per-channel argmax.
+    static func decodeQuad(_ values: [Float], width w: Int, height h: Int) -> (points: [CGPoint], confidences: [Float]) {
+        var candidates: [[(point: CGPoint, value: Float)]] = []
+        for c in 0..<4 {
+            let peaks = localPeaks(values, channel: c, width: w, height: h)
+            if peaks.isEmpty { return argmaxAll(values, width: w, height: h) }
+            candidates.append(peaks.map { (refine(values, channel: c, i: $0.i, j: $0.j, width: w, height: h), $0.value) })
+        }
+        var best: (points: [CGPoint], confidences: [Float])?
+        var bestScore = -Double.infinity
+        for a in candidates[0] {
+            for b in candidates[1] {
+                for c in candidates[2] {
+                    for d in candidates[3] {
+                        let quad = [a.point, b.point, c.point, d.point]
+                        guard isConvexClockwise(quad) else { continue }
+                        let confidences = [a.value, b.value, c.value, d.value]
+                        let score = confidences.reduce(0) { $0 + log(max(Double($1), eps)) } - geoWeight * shapePenalty(quad)
+                        if score > bestScore {
+                            bestScore = score
+                            best = (quad, confidences)
+                        }
+                    }
+                }
+            }
+        }
+        return best ?? argmaxAll(values, width: w, height: h)
+    }
+
+    /// Top-k 3×3 local maxima ≥ `peakMin`, highest first (ties keep row-major order).
+    static func localPeaks(_ values: [Float], channel: Int, width w: Int, height h: Int) -> [(i: Int, j: Int, value: Float)] {
+        let base = channel * w * h
+        var peaks: [(i: Int, j: Int, value: Float, order: Int)] = []
+        for i in 0..<h {
+            for j in 0..<w {
+                let v = values[base + i * w + j]
+                guard v >= peakMin else { continue }
+                var isMax = true
+                for di in -1...1 {
+                    for dj in -1...1 where di != 0 || dj != 0 {
+                        let y = i + di, x = j + dj
+                        let neighbour: Float = (0..<h).contains(y) && (0..<w).contains(x) ? values[base + y * w + x] : -1
+                        if v < neighbour { isMax = false }
+                    }
+                }
+                if isMax { peaks.append((i, j, v, i * w + j)) }
+            }
+        }
+        peaks.sort { $0.value != $1.value ? $0.value > $1.value : $0.order < $1.order }
+        return peaks.prefix(peaksPerCorner).map { ($0.i, $0.j, $0.value) }
+    }
+
+    /// 0 for a square; grows with opposite-side mismatch and aspect ratio (quad: TL, TR, BR, BL).
+    static func shapePenalty(_ q: [CGPoint]) -> Double {
+        func length(_ a: CGPoint, _ b: CGPoint) -> Double { Double(hypot(b.x - a.x, b.y - a.y)) }
+        let top = length(q[0], q[1]), right = length(q[1], q[2]), bottom = length(q[2], q[3]), left = length(q[3], q[0])
+        guard min(top, right, bottom, left) >= 1e-3 else { return 1e9 }
+        return abs(log(top / bottom)) + abs(log(left / right)) + abs(log((top + bottom) / (left + right)))
+    }
+
+    static func isConvexClockwise(_ q: [CGPoint]) -> Bool {
+        for k in 0..<4 {
+            let a = q[k], b = q[(k + 1) % 4], c = q[(k + 2) % 4]
+            if (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x) <= 0 { return false }
+        }
+        return true
+    }
+
+    private static func argmaxAll(_ values: [Float], width w: Int, height h: Int) -> (points: [CGPoint], confidences: [Float]) {
+        let peaks = (0..<4).map { peak(values, channel: $0, width: w, height: h) }
+        return (peaks.map(\.0), peaks.map(\.1))
+    }
+
+    /// Plain per-channel argmax with sub-cell refinement.
     static func peak(_ values: [Float], channel: Int, width w: Int, height h: Int) -> (CGPoint, Float) {
         let base = channel * w * h
         var best = 0
@@ -302,15 +382,18 @@ enum HeatmapDecoder {
             bestValue = values[base + i]
             best = i
         }
-        let i = best / w, j = best % w
+        return (refine(values, channel: channel, i: best / w, j: best % w, width: w, height: h), bestValue)
+    }
+
+    private static func refine(_ values: [Float], channel: Int, i: Int, j: Int, width w: Int, height h: Int) -> CGPoint {
+        let base = channel * w * h
         func v(_ y: Int, _ x: Int) -> Float { values[base + y * w + x] }
         let dx = (0 < j && j < w - 1) ? offset(v(i, j - 1), v(i, j), v(i, j + 1)) : 0
         let dy = (0 < i && i < h - 1) ? offset(v(i - 1, j), v(i, j), v(i + 1, j)) : 0
-        return (CGPoint(x: Double(j) + dx + 0.5, y: Double(i) + dy + 0.5), bestValue)
+        return CGPoint(x: Double(j) + dx + 0.5, y: Double(i) + dy + 0.5)
     }
 
     private static func offset(_ a: Float, _ b: Float, _ c: Float) -> Double {
-        let eps = 1e-6
         let la = log(max(Double(a), eps)), lb = log(max(Double(b), eps)), lc = log(max(Double(c), eps))
         let denom = la - 2 * lb + lc
         if denom >= -1e-9 { return 0 }
@@ -344,35 +427,34 @@ struct Letterbox {
 }
 
 extension MLMultiArray {
-    /// Contiguous Float copy in logical (row-major) order, honouring strides and data type.
+    /// Contiguous Float copy in logical (row-major) order. Uses the locked accessor (fp16 outputs
+    /// may be backed by a pixel buffer, where `dataPointer` isn't valid) and honours its strides.
     func floats() -> [Float] {
         let shape = self.shape.map(\.intValue)
-        let strides = self.strides.map(\.intValue)
         let count = shape.reduce(1, *)
         var result = [Float](repeating: 0, count: count)
-        func read(_ offset: Int) -> Float {
-            switch dataType {
-            case .float16:
-                return Float(dataPointer.assumingMemoryBound(to: Float16.self)[offset])
-            case .double:
-                return Float(dataPointer.assumingMemoryBound(to: Double.self)[offset])
-            case .int32:
-                return Float(dataPointer.assumingMemoryBound(to: Int32.self)[offset])
-            default:
-                return dataPointer.assumingMemoryBound(to: Float.self)[offset]
+        let type = dataType
+        withUnsafeMutableBytes { raw, strides in
+            func read(_ offset: Int) -> Float {
+                switch type {
+                case .float16: return Float(raw.load(fromByteOffset: offset * 2, as: Float16.self))
+                case .double: return Float(raw.load(fromByteOffset: offset * 8, as: Double.self))
+                case .int32: return Float(raw.load(fromByteOffset: offset * 4, as: Int32.self))
+                default: return raw.load(fromByteOffset: offset * 4, as: Float.self)
+                }
             }
-        }
-        var index = [Int](repeating: 0, count: shape.count)
-        for i in 0..<count {
-            var offset = 0
-            for d in 0..<shape.count { offset += index[d] * strides[d] }
-            result[i] = read(offset)
-            var d = shape.count - 1
-            while d >= 0 {
-                index[d] += 1
-                if index[d] < shape[d] { break }
-                index[d] = 0
-                d -= 1
+            var index = [Int](repeating: 0, count: shape.count)
+            for i in 0..<count {
+                var offset = 0
+                for d in 0..<shape.count { offset += index[d] * strides[d] }
+                result[i] = read(offset)
+                var d = shape.count - 1
+                while d >= 0 {
+                    index[d] += 1
+                    if index[d] < shape[d] { break }
+                    index[d] = 0
+                    d -= 1
+                }
             }
         }
         return result

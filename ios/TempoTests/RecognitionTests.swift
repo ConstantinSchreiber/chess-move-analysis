@@ -92,3 +92,48 @@ final class SampleRecognitionTests: XCTestCase {
         }
     }
 }
+
+/// Swift-vs-Python parity: every labelled real image in `ml/testdata` (lichess screenshots, plus the
+/// gitignored chess.com captures and the reference iPhone photo when present on this machine).
+final class RealImageRecognitionTests: XCTestCase {
+    struct Label: Decodable {
+        let file: String
+        let fen: String
+        let flipped: Bool
+        let side_to_move: String?
+    }
+
+    func testRealImages() async throws {
+        guard Bundle.main.url(forResource: "BoardDetector", withExtension: "mlmodelc") != nil else {
+            throw XCTSkip("Recognition models are not bundled yet")
+        }
+        let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        var total = 0, correct = 0
+        var failures: [String] = []
+        for folder in ["real", "private"] {
+            let dir = repo.appendingPathComponent("ml/testdata/\(folder)")
+            guard let data = try? Data(contentsOf: dir.appendingPathComponent("labels.json")) else { continue }
+            for label in try JSONDecoder().decode([Label].self, from: data) {
+                guard let image = UIImage(contentsOfFile: dir.appendingPathComponent(label.file).path) else { continue }
+                total += 1
+                let expected = try Position(fen: label.fen)
+                do {
+                    let result = try await BoardRecognizer.shared.recognize(image)
+                    var problems: [String] = []
+                    if result.position.boardFEN != expected.boardFEN { problems.append("board \(result.position.boardFEN)") }
+                    if (result.orientation == .black) != label.flipped { problems.append("orientation") }
+                    if let side = label.side_to_move, (result.position.sideToMove == .white ? "w" : "b") != side {
+                        problems.append("side to move \(result.position.sideToMove)")
+                    }
+                    if problems.isEmpty { correct += 1 } else { failures.append("\(label.file): \(problems.joined(separator: ", "))") }
+                } catch {
+                    failures.append("\(label.file): \(error.localizedDescription)")
+                }
+            }
+        }
+        print("[real images] \(correct)/\(total) fully correct")
+        failures.forEach { print("[real images] FAIL \($0)") }
+        XCTAssertGreaterThan(total, 0)
+        XCTAssertTrue(failures.isEmpty, failures.joined(separator: "\n"))
+    }
+}
