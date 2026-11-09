@@ -34,17 +34,19 @@ final class AnalysisModel: Identifiable, Hashable {
     let id = UUID()
     private(set) var tree: MoveTree
     private(set) var current: MoveTree.NodeID = MoveTree.root {
-        didSet { displayLines = Self.lines(from: snapshot, position: position) }
+        didSet { displayLines = formatLines() }
     }
     var orientation: PieceColor
     private(set) var snapshot: EngineSnapshot? {
-        didSet { displayLines = Self.lines(from: snapshot, position: position) }
+        didSet { displayLines = formatLines() }
     }
     /// Engine lines for the position on the board, formatted once per engine update.
     private(set) var displayLines: [DisplayLine] = []
     private(set) var status: EngineStatus = .starting
     /// Extra depth requested via "Go deeper".
     private var depthBonus = 0
+    /// Whether Stockfish has finished booting at least once (for status wording).
+    private(set) var engineBooted = StockfishEngine.shared.isReady
     private let historyID: UUID?
 
     @ObservationIgnored private var analysisTask: Task<Void, Never>?
@@ -76,12 +78,17 @@ final class AnalysisModel: Identifiable, Hashable {
         return snapshot
     }
 
-    private static func lines(from snapshot: EngineSnapshot?, position: Position) -> [DisplayLine] {
-        guard let snapshot, snapshot.fen == position.fen else { return [] }
+    /// Longest engine line shown (in plies); longer PVs are trimmed.
+    static let maxLinePlies = 16
+
+    private func formatLines() -> [DisplayLine] {
+        guard let snapshot = currentSnapshot else { return [] }
+        let position = self.position
         return snapshot.lines.compactMap { line in
-            guard !line.pv.isEmpty else { return nil }
-            return DisplayLine(id: line.multipv, score: line.score, depth: line.depth, uci: line.pv,
-                               tokens: tokens(for: Array(line.pv.prefix(16)), from: position))
+            let uci = Array(line.pv.prefix(Self.maxLinePlies))
+            guard !uci.isEmpty else { return nil }
+            return DisplayLine(id: line.multipv, score: line.score, depth: line.depth, uci: uci,
+                               tokens: Self.tokens(for: uci, from: position))
         }
     }
 
@@ -158,6 +165,8 @@ final class AnalysisModel: Identifiable, Hashable {
             break
         }
         guard position.isValidForAnalysis else {
+            StockfishEngine.shared.stop()
+            analysisTask = nil
             status = .unavailable("This position isn't legal, so it can't be analysed.")
             return
         }
@@ -171,12 +180,14 @@ final class AnalysisModel: Identifiable, Hashable {
             try? await Task.sleep(for: .milliseconds(40))
             guard !Task.isCancelled else { return }
             do {
-                try await StockfishEngine.shared.prepare()
+                try await StockfishEngine.shared.prepare(AppModel.engineConfiguration)
             } catch {
+                guard !Task.isCancelled else { return }
                 self?.status = .unavailable(error.localizedDescription)
                 return
             }
             guard !Task.isCancelled else { return }
+            self?.engineBooted = true
             self?.status = .running
             for await snapshot in StockfishEngine.shared.analyze(fen: fen, multiPV: lines, limit: .depth(depth)) {
                 guard let self, !Task.isCancelled else { break }
@@ -221,12 +232,14 @@ final class AnalysisModel: Identifiable, Hashable {
         let onPath = tree.path(to: current).contains(node)
         let currentMoves = tree.moves(to: current)
         let parent = tree.delete(node)
-        if onPath {
-            current = parent
-            restartAnalysis()
+        // Ids are compacted by the deletion; find the same position again by its moves.
+        let survivor = onPath ? parent : tree.node(following: currentMoves)
+        if let survivor, !onPath {
+            current = survivor
         } else {
-            // Ids are compacted by the deletion; find the same position again by its moves.
-            current = tree.node(following: currentMoves) ?? MoveTree.root
+            current = survivor ?? MoveTree.root
+            depthBonus = 0
+            restartAnalysis()
         }
     }
 

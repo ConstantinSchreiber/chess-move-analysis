@@ -41,15 +41,23 @@ Flat index into `pieces`: `((row * 8) + col) * 13 + class` (check `strides` if y
    `scale = S / max(w, h)`, `nw = round(w * scale)`, `nh = round(h * scale)`,
    `ox = floor((S - nw) / 2)`, `oy = floor((S - nh) / 2)`; draw the resized image at `(ox, oy)` on a
    black canvas (area/high-quality downscale). Forward map: `x' = x * nw / w + ox`, `y' = y * nh / h + oy`.
-2. **Detect** → `heatmaps`. For each channel `c`:
-   - `(i, j) = argmax`; `conf_c = h[i, j]`.
-   - Sub-cell refinement with a parabola through the logs (exact for Gaussians), `EPS = 1e-6`:
-     `off(a, b, c) = 0.5 * (ln a − ln c) / (ln a − 2 ln b + ln c)` using `max(v, EPS)`;
-     return 0 if the denominator ≥ −1e-9; clamp to [−0.5, 0.5].
-     `dx = off(h[i, j−1], h[i, j], h[i, j+1])` (0 at the border), `dy` likewise along rows.
-   - Point in letterbox px: `x' = (j + dx + 0.5) * 4`, `y' = (i + dy + 0.5) * 4`.
+2. **Detect** → `heatmaps`, then pick the corners with `decode_quad()` (geometry-aware; plain
+   per-channel argmax picks e.g. the bottom of a move list under a phone-width board):
+   - **Candidates** per channel `c`: 3×3 local maxima (`h[i,j] ≥` all 8 neighbours, out-of-bounds
+     neighbours count as −1) with value `≥ PEAK_MIN (0.1)`; keep the top `PEAKS_PER_CORNER (4)` by value
+     (ties: row-major order). If a channel has none → fall back to plain argmax for all four.
+   - **Sub-cell refinement** of each candidate with a parabola through the logs (exact for Gaussians),
+     `EPS = 1e-6`: `off(a, b, c) = 0.5 * (ln a − ln c) / (ln a − 2 ln b + ln c)` using `max(v, EPS)`;
+     0 if the denominator ≥ −1e-9; clamp to [−0.5, 0.5]. `dx = off(h[i, j−1], h[i, j], h[i, j+1])`
+     (0 at the border), `dy` likewise along rows. Point in letterbox px:
+     `x' = (j + dx + 0.5) * 4`, `y' = (i + dy + 0.5) * 4`.
+   - **Choose** the combination (≤ 4⁴ = 256) that is a convex clockwise quad (all four consecutive
+     `cross(b − a, c − b) > 0`, y-down) maximising
+     `Σ ln(max(v, EPS)) − GEO_WEIGHT (1.5) * shape`, where with side lengths top, right, bottom, left:
+     `shape = |ln(top/bottom)| + |ln(left/right)| + |ln((top+bottom)/(left+right))|`.
+     No convex combination → plain argmax per channel.
    - Back to image px: `x = (x' − ox) * w / nw`, `y = (y' − oy) * h / nh`.
-   - `conf = min(conf_TL, conf_TR, conf_BR, conf_BL)`.
+   - `conf = min of the 4 chosen peak values`.
 3. **Reject** if `conf < DETECT_MIN_CONF (0.25)` or the quad fails `quad_ok`: all four
    `cross((b − a), (d − b)) > 0` for consecutive corners (convex, clockwise in y-down coords),
    shortest side > 16 px, longest/shortest side < 4. → "No board found".

@@ -157,7 +157,7 @@ struct AnalysisView: View {
         let snapshot = model.currentSnapshot
         switch model.status {
         case .starting:
-            return StockfishEngine.shared.isReady ? "Stockfish is thinking…" : "Starting Stockfish…"
+            return model.engineBooted ? "Stockfish is thinking…" : "Starting Stockfish…"
         case .running:
             guard let snapshot, snapshot.depth > 0 else { return "Stockfish is thinking…" }
             return "Depth \(snapshot.depth) · \(Self.formatNPS(snapshot.nps))"
