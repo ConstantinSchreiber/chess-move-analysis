@@ -86,14 +86,26 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.tempo.tests
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Tempo.app/Tempo"
         BUNDLE_LOADER: "$(TEST_HOST)"
+  TempoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [TempoUITests]
+    dependencies:
+      - target: Tempo
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.tempo.uitests
+        TEST_TARGET_NAME: Tempo
 schemes:
   Tempo:
     build:
       targets:
         Tempo: all
         TempoTests: [test]
+        TempoUITests: [test]
     test:
-      targets: [TempoTests]
+      targets: [TempoTests, TempoUITests]
     run:
       config: Debug
     archive:

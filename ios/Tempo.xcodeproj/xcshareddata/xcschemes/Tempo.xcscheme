@@ -35,6 +35,20 @@
                ReferencedContainer = "container:Tempo.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "905B84C3A1A3AD8641726070"
+               BuildableName = "TempoUITests.xctest"
+               BlueprintName = "TempoUITests"
+               ReferencedContainer = "container:Tempo.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -61,6 +75,17 @@
                BlueprintIdentifier = "C337B61AC76E84E27EF729D6"
                BuildableName = "TempoTests.xctest"
                BlueprintName = "TempoTests"
+               ReferencedContainer = "container:Tempo.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "905B84C3A1A3AD8641726070"
+               BuildableName = "TempoUITests.xctest"
+               BlueprintName = "TempoUITests"
                ReferencedContainer = "container:Tempo.xcodeproj">
             </BuildableReference>
          </TestableReference>

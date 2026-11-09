@@ -73,6 +73,7 @@ struct BoardView: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Chess board")
+        .accessibilityIdentifier("board")
         .accessibilityValue(position.boardFEN)
     }
 

@@ -862,6 +862,10 @@ def degrade(rng, img, photo):
         if rng.random() < 0.6:
             noise = np.random.default_rng(rng.randrange(1 << 30)).normal(0, rng.uniform(1, 9), img.shape)
             img = np.clip(img.astype(np.float32) + noise, 0, 255).astype(np.uint8)
+        if rng.random() < 0.3:  # phone cameras sharpen aggressively
+            blur = cv2.GaussianBlur(img, (0, 0), rng.uniform(1.0, 2.5))
+            k = rng.uniform(0.3, 1.0)
+            img = cv2.addWeighted(img, 1 + k, blur, -k, 0)
     else:
         img = np.clip(img, 0, 255).astype(np.uint8)
         if rng.random() < 0.25:  # screenshots get resized by messengers

@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 
 from . import CLASSES
-from .decode import decode_heatmaps
+from .decode import decode_heatmaps, decode_quad
 
 # ----------------------------------------------------------------------------- CONSTANTS
 DETECTOR_STRIDE = 4            # heatmap cell = 4 input px
@@ -106,7 +106,7 @@ def letterbox(img, S):
 def detect_pass(backend, img):
     lb, (sx, sy, ox, oy) = letterbox(img, backend.S)
     hm = backend.detect(lb)
-    pts, conf = decode_heatmaps(hm, DETECTOR_STRIDE)
+    pts, conf = decode_quad(hm, DETECTOR_STRIDE)
     pts = (pts - np.array([ox, oy], np.float32)) / np.array([sx, sy], np.float32)
     return pts, float(conf.min())
 

@@ -40,10 +40,18 @@
 		ED7F6BFE2F3A26B67E4A07AF /* RGBAImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2303894ED3BF98337E80E624 /* RGBAImage.swift */; };
 		F24F504E5AEB70915023261A /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16836E78F77300EF9886A117 /* Theme.swift */; };
 		F9CA66CAAC4A7BE90C18C06C /* HeroScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29F7D16867A1BE58E35BC81C /* HeroScene.swift */; };
+		FAB84A52B17E68168F5F2392 /* BoardInteractionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5CE57AEA01E70DF824A93D /* BoardInteractionUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		5686D52CB9B7A408A45BB569 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AD30179AB18F679D26066274 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B4B1ABCA42D941961C207402;
+			remoteInfo = Tempo;
+		};
+		B51E70FF557CC552E3A33098 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AD30179AB18F679D26066274 /* Project object */;
 			proxyType = 1;
@@ -56,6 +64,7 @@
 		131C31B75AD99E0B18FB8040 /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
 		137CEE22DAC6A77039478E05 /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		16836E78F77300EF9886A117 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		201B96536E7ACDD0996AEDE5 /* TempoUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TempoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		21756246C17F9532BF505FB6 /* NNUE */ = {isa = PBXFileReference; lastKnownFileType = folder; name = NNUE; path = Tempo/Resources/NNUE; sourceTree = SOURCE_ROOT; };
 		2303894ED3BF98337E80E624 /* RGBAImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGBAImage.swift; sourceTree = "<group>"; };
 		270B87214C8958180521CF6C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -72,6 +81,7 @@
 		88ED425635797A5F5E870988 /* Evaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Evaluation.swift; sourceTree = "<group>"; };
 		9284B1CA6F61A72512C3CB18 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		94BFCAF55BB825DA0FB4D99E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		9F5CE57AEA01E70DF824A93D /* BoardInteractionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardInteractionUITests.swift; sourceTree = "<group>"; };
 		A9C9AE90A5DA8FD6AE89A6EF /* PieceLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieceLayout.swift; sourceTree = "<group>"; };
 		AE6263597B3354C508BBC7D4 /* Tempo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Tempo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B959E31024B7B86E44A27DD1 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -164,6 +174,7 @@
 			children = (
 				AE6263597B3354C508BBC7D4 /* Tempo.app */,
 				D57F97E834A8A30DB9CAE89B /* TempoTests.xctest */,
+				201B96536E7ACDD0996AEDE5 /* TempoUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -199,6 +210,7 @@
 				70EE70E1C926D22985DA61E2 /* Packages */,
 				93A5DFF654AA0B833311F529 /* Tempo */,
 				5ABE29F9C60E86484C7813E7 /* TempoTests */,
+				E3628503959B5D948C0F29B7 /* TempoUITests */,
 				551138FD8DA4B1DC4CE1CC90 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -251,6 +263,14 @@
 			path = Design;
 			sourceTree = "<group>";
 		};
+		E3628503959B5D948C0F29B7 /* TempoUITests */ = {
+			isa = PBXGroup;
+			children = (
+				9F5CE57AEA01E70DF824A93D /* BoardInteractionUITests.swift */,
+			);
+			path = TempoUITests;
+			sourceTree = "<group>";
+		};
 		F39A0C45E7D728F39BE73577 /* Samples */ = {
 			isa = PBXGroup;
 			children = (
@@ -275,6 +295,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		905B84C3A1A3AD8641726070 /* TempoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 48242C39F70C6153F1CD33C0 /* Build configuration list for PBXNativeTarget "TempoUITests" */;
+			buildPhases = (
+				BDB23EA88D79AF61BEE1EAE2 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8B81C02B26D82F1F24A25839 /* PBXTargetDependency */,
+			);
+			name = TempoUITests;
+			packageProductDependencies = (
+			);
+			productName = TempoUITests;
+			productReference = 201B96536E7ACDD0996AEDE5 /* TempoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		B4B1ABCA42D941961C207402 /* Tempo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FE7A9862C48352D13895373 /* Build configuration list for PBXNativeTarget "Tempo" */;
@@ -326,6 +364,11 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					905B84C3A1A3AD8641726070 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+						TestTargetID = B4B1ABCA42D941961C207402;
+					};
 					B4B1ABCA42D941961C207402 = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
@@ -356,6 +399,7 @@
 			targets = (
 				B4B1ABCA42D941961C207402 /* Tempo */,
 				C337B61AC76E84E27EF729D6 /* TempoTests */,
+				905B84C3A1A3AD8641726070 /* TempoUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -407,6 +451,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BDB23EA88D79AF61BEE1EAE2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAB84A52B17E68168F5F2392 /* BoardInteractionUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F8BECD3B83F1BDE402E1832A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -440,6 +492,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		8B81C02B26D82F1F24A25839 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B4B1ABCA42D941961C207402 /* Tempo */;
+			targetProxy = B51E70FF557CC552E3A33098 /* PBXContainerItemProxy */;
+		};
 		A8CC82F224EE8C8583190147 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B4B1ABCA42D941961C207402 /* Tempo */;
@@ -531,6 +588,23 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		39D9B360A6302383A613B5DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.constantinschreiber.tempo.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Tempo;
 			};
 			name = Release;
 		};
@@ -661,9 +735,35 @@
 			};
 			name = Release;
 		};
+		F62C89335F3C250B8A88D19C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.constantinschreiber.tempo.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Tempo;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		48242C39F70C6153F1CD33C0 /* Build configuration list for PBXNativeTarget "TempoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F62C89335F3C250B8A88D19C /* Debug */,
+				39D9B360A6302383A613B5DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		4FE7A9862C48352D13895373 /* Build configuration list for PBXNativeTarget "Tempo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

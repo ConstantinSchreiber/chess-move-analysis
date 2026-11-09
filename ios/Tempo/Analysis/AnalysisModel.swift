@@ -33,9 +33,15 @@ final class AnalysisModel: Identifiable, Hashable {
 
     let id = UUID()
     private(set) var tree: MoveTree
-    private(set) var current: MoveTree.NodeID = MoveTree.root
+    private(set) var current: MoveTree.NodeID = MoveTree.root {
+        didSet { displayLines = Self.lines(from: snapshot, position: position) }
+    }
     var orientation: PieceColor
-    private(set) var snapshot: EngineSnapshot?
+    private(set) var snapshot: EngineSnapshot? {
+        didSet { displayLines = Self.lines(from: snapshot, position: position) }
+    }
+    /// Engine lines for the position on the board, formatted once per engine update.
+    private(set) var displayLines: [DisplayLine] = []
     private(set) var status: EngineStatus = .starting
     /// Extra depth requested via "Go deeper".
     private var depthBonus = 0
@@ -70,13 +76,12 @@ final class AnalysisModel: Identifiable, Hashable {
         return snapshot
     }
 
-    var displayLines: [DisplayLine] {
-        guard let snapshot = currentSnapshot else { return [] }
-        let position = self.position
+    private static func lines(from snapshot: EngineSnapshot?, position: Position) -> [DisplayLine] {
+        guard let snapshot, snapshot.fen == position.fen else { return [] }
         return snapshot.lines.compactMap { line in
             guard !line.pv.isEmpty else { return nil }
             return DisplayLine(id: line.multipv, score: line.score, depth: line.depth, uci: line.pv,
-                               tokens: Self.tokens(for: line.pv, from: position))
+                               tokens: tokens(for: Array(line.pv.prefix(16)), from: position))
         }
     }
 
@@ -214,8 +219,15 @@ final class AnalysisModel: Identifiable, Hashable {
     func deleteVariation(_ node: MoveTree.NodeID) {
         guard node != MoveTree.root else { return }
         let onPath = tree.path(to: current).contains(node)
+        let currentMoves = tree.moves(to: current)
         let parent = tree.delete(node)
-        if onPath { current = parent; restartAnalysis() } else { current = min(current, tree.nodes.count - 1) }
+        if onPath {
+            current = parent
+            restartAnalysis()
+        } else {
+            // Ids are compacted by the deletion; find the same position again by its moves.
+            current = tree.node(following: currentMoves) ?? MoveTree.root
+        }
     }
 
     // MARK: Helpers

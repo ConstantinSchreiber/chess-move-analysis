@@ -135,6 +135,8 @@ final class MoveTreeTests: XCTestCase {
         XCTAssertEqual(tree.moveNumberLabel(for: c5), "1…")
 
         let end = tree.add(uciLine: ["g1f3", "d7d6", "d2d4"], after: c5)
+        XCTAssertEqual(tree.node(following: tree.moves(to: end)), end)
+        XCTAssertNil(tree.node(following: [Move(uci: "d2d4")!]))
         XCTAssertEqual(tree[end].ply, 5)
         let parent = tree.delete(c5)
         XCTAssertEqual(tree[parent].san, "e4")

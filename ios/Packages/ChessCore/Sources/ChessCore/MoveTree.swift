@@ -71,6 +71,21 @@ public struct MoveTree: Sendable, Equatable {
         return result
     }
 
+    /// Moves from the root to `node`.
+    public func moves(to node: NodeID) -> [Move] {
+        path(to: node).compactMap { nodes[$0].move }
+    }
+
+    /// The node reached by following `moves` from the root, if that line exists.
+    public func node(following moves: [Move]) -> NodeID? {
+        var current = Self.root
+        for move in moves {
+            guard let next = nodes[current].children.first(where: { nodes[$0].move == move }) else { return nil }
+            current = next
+        }
+        return current
+    }
+
     /// Promotes `node`'s branch to be the main continuation at every fork above it.
     public mutating func promote(_ node: NodeID) {
         var child = node
