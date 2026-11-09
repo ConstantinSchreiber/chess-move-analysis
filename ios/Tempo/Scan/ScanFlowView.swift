@@ -27,11 +27,10 @@ struct ScanFlowView: View {
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(32)
         .fullScreenCover(isPresented: $showCamera) {
-            CameraPicker { image in
+            CameraScannerView(onCapture: { image in
                 showCamera = false
-                if let image { recognize(image) }
-            }
-            .ignoresSafeArea()
+                recognize(image)
+            }, onCancel: { showCamera = false })
         }
         .onChange(of: photoItem) { _, item in
             guard let item else { return }
@@ -47,6 +46,12 @@ struct ScanFlowView: View {
                 app.pendingScanImage = nil
                 recognize(image)
             }
+            #if DEBUG
+            if let review = app.pendingDemoReview {
+                app.pendingDemoReview = nil
+                path.append(ScanReview(result: review))
+            }
+            #endif
         }
         .onReceive(NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)) { _ in
             clipboardHasImage = UIPasteboard.general.hasImages
@@ -301,35 +306,6 @@ private struct FailureOverlay: View {
             }
             .padding(28)
         }
-    }
-}
-
-/// System camera (UIImagePickerController) wrapped for SwiftUI.
-struct CameraPicker: UIViewControllerRepresentable {
-    let onFinish: (UIImage?) -> Void
-
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.sourceType = .camera
-        picker.cameraCaptureMode = .photo
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(_ controller: UIImagePickerController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator { Coordinator(onFinish: onFinish) }
-
-    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let onFinish: (UIImage?) -> Void
-        init(onFinish: @escaping (UIImage?) -> Void) { self.onFinish = onFinish }
-
-        func imagePickerController(_ picker: UIImagePickerController,
-                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            onFinish(info[.originalImage] as? UIImage)
-        }
-
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { onFinish(nil) }
     }
 }
 

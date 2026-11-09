@@ -10,6 +10,7 @@
 		030617F347A2CFE168DB80F4 /* samples.json in Resources */ = {isa = PBXBuildFile; fileRef = 716BA4588CCC2E366278E935 /* samples.json */; };
 		08FA280D0E441E1C6D165B79 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B05EDE81981FAA2AEF26B3E /* AppSettings.swift */; };
 		0BEB413499395703E05483DE /* TempoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CF9484477DD6D876EF53A91 /* TempoApp.swift */; };
+		0FE1ABE1BBE6D625E9EA17F7 /* CameraScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 137CEE22DAC6A77039478E05 /* CameraScanner.swift */; };
 		224CAD69D497A08EF252FAC7 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = C12CB0458D35BD70AB986AFD /* Components.swift */; };
 		310DB3EF35AE73A1FCE306F9 /* BoardStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA079327841BB7DFC2627A47 /* BoardStyle.swift */; };
 		3D5359828A800210B37B551F /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B959E31024B7B86E44A27DD1 /* HomeView.swift */; };
@@ -53,6 +54,7 @@
 
 /* Begin PBXFileReference section */
 		131C31B75AD99E0B18FB8040 /* AnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisView.swift; sourceTree = "<group>"; };
+		137CEE22DAC6A77039478E05 /* CameraScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScanner.swift; sourceTree = "<group>"; };
 		16836E78F77300EF9886A117 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		21756246C17F9532BF505FB6 /* NNUE */ = {isa = PBXFileReference; lastKnownFileType = folder; name = NNUE; path = Tempo/Resources/NNUE; sourceTree = SOURCE_ROOT; };
 		2303894ED3BF98337E80E624 /* RGBAImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGBAImage.swift; sourceTree = "<group>"; };
@@ -262,6 +264,7 @@
 		FB970F867AC598A030E02E95 /* Scan */ = {
 			isa = PBXGroup;
 			children = (
+				137CEE22DAC6A77039478E05 /* CameraScanner.swift */,
 				4B4856C7A4B59B96BB279AD4 /* PositionEditor.swift */,
 				742E715E07C5E6698EBF8E4B /* ScanFlowView.swift */,
 				4F48B81A0A5F06CA62D2A087 /* ScanReviewView.swift */,
@@ -415,6 +418,7 @@
 				EAD0E3F30CBEDEF225D608F6 /* BoardRecognizer.swift in Sources */,
 				310DB3EF35AE73A1FCE306F9 /* BoardStyle.swift in Sources */,
 				71578CA9C9B2CA04354B181E /* BoardView.swift in Sources */,
+				0FE1ABE1BBE6D625E9EA17F7 /* CameraScanner.swift in Sources */,
 				224CAD69D497A08EF252FAC7 /* Components.swift in Sources */,
 				7F54FE783097BED52C69E0AC /* Evaluation.swift in Sources */,
 				F9CA66CAAC4A7BE90C18C06C /* HeroScene.swift in Sources */,

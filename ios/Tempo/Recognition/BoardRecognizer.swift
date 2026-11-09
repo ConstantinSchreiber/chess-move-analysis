@@ -42,6 +42,18 @@ final class BoardRecognizer: @unchecked Sendable {
         queue.async { try? self.loadModels() }
     }
 
+    /// First-pass corner detection for the live camera preview (no zoom pass, no reading).
+    /// Returns corners in `frame` pixels, or nil when no board is visible.
+    func detectCornersForPreview(in frame: RGBAImage) -> [CGPoint]? {
+        queue.sync {
+            guard (try? loadModels()) != nil, let detector else { return nil }
+            let full = CGRect(x: 0, y: 0, width: frame.width, height: frame.height)
+            guard let (corners, confidence) = try? detect(in: frame, crop: full, model: detector),
+                  confidence >= Self.detectMinConfidence, Self.quadIsValid(corners) else { return nil }
+            return corners
+        }
+    }
+
     // MARK: Pipeline
 
     private func loadModels() throws {

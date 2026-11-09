@@ -19,6 +19,10 @@ final class AppModel {
     var setupRequest: SetupRequest?
     /// An image the scan sheet should recognise as soon as it opens (samples, shortcuts, debug).
     var pendingScanImage: UIImage?
+    #if DEBUG
+    /// A ready-made recognition result to show in the review screen (UI development without models).
+    var pendingDemoReview: RecognitionResult?
+    #endif
 
     struct SetupRequest: Identifiable {
         let id = UUID()
@@ -58,11 +62,26 @@ final class AppModel {
             scan(image)
         } else if let fen = value(after: "-demoAnalysis"), let position = try? Position(fen: fen) {
             analyze(position: position, orientation: position.sideToMove, source: .board)
+        } else if args.contains("-demoReview"), let review = Self.demoReview() {
+            pendingDemoReview = review
+            startScan()
         } else if args.contains("-demoSetup") {
             openSetup()
         } else if args.contains("-demoSettings") {
             isSettingsPresented = true
         }
+    }
+
+    /// The bundled photo sample with its known answer, as if the recogniser had read it.
+    private static func demoReview() -> RecognitionResult? {
+        guard let image = SampleImages.all.first(where: { $0.id == "sample-photo" })?.image,
+              let source = RGBAImage(image: image, maxSide: 2048),
+              let position = try? Position(fen: "r1bq1rk1/pp1nbppp/2p1p3/3n2B1/2BP4/2N1PN2/PP3PPP/2RQK2R w K - 1 10") else { return nil }
+        let corners = [CGPoint(x: 120.1, y: 693.5), CGPoint(x: 904.9, y: 671.4), CGPoint(x: 896.1, y: 1484.8), CGPoint(x: 139, y: 1468.8)]
+        return RecognitionResult(image: source.uiImage(), boardImage: source.warped(quad: corners, size: 384).uiImage(),
+                                 corners: corners, position: position, orientation: .white,
+                                 uncertainSquares: [Square("d5")!, Square("g5")!],
+                                 evidence: .highlight(mover: .black, move: Move(uci: "f6d5")), duration: 0.08)
     }
     #endif
 

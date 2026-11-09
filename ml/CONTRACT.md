@@ -64,7 +64,7 @@ Flat index into `pieces`: `((row * 8) + col) * 13 + class` (check `strides` if y
    Then a bilinear perspective warp mapping the corners to `(0,0), (R,0), (R,R), (0,R)` (continuous
    coords; with OpenCV: subtract 0.5 from both point sets). `CIPerspectiveCorrection` followed by a
    resize to exactly R×R is fine — the reader was trained with ±2 % corner jitter and mixed interpolation.
-6. **Read** → `pieces`, `highlight`, `flipped`. Per cell `cls = argmax`, `p = max prob`.
+6. **Read** → `pieces`, `highlight`, `flipped`. Per cell `cls = argmax`.
 7. **Kings**: if a colour has >1 king, keep the one with the highest king prob and give the others
    their best non-king class. If a colour has none, promote the cell with the highest king prob when
    that prob > `KING_MIN_PROB (0.2)` (and the cell isn't a king of the other colour).
@@ -74,7 +74,8 @@ Flat index into `pieces`: `((row * 8) + col) * 13 + class` (check `strides` if y
    Else `logit = ln(p/(1−p)) − LAYOUT_WEIGHT (1.2) * layout`, `flipped = logit > 0`, where
    `layout = (mean row of white pieces − mean row of black pieces) / 2` (0 if a colour is absent).
 10. **Cells → squares**: unflipped `sq = (7 − row) * 8 + col`; flipped `sq = row * 8 + (7 − col)`.
-11. **Uncertain squares**: `p < UNCERTAIN_PROB (0.85)` → outline them in the confirm UI.
+11. **Uncertain squares**: `p = pieces[row, col, cls]` (prob of the class finally reported, after
+    steps 7–8) `< UNCERTAIN_PROB (0.85)` → outline them in the confirm UI.
 12. **Side to move** (`side_to_move()`): highlighted squares = `highlight > HIGHLIGHT_PROB (0.5)`,
     sorted by prob, keep the top 2.
     - exactly one of the two is occupied ⇒ that piece's colour just moved; last move = (empty → occupied);
@@ -87,6 +88,10 @@ Flat index into `pieces`: `((row * 8) + col) * 13 + class` (check `strides` if y
 13. **Castling**: `K` if white K on e1 and R on h1, `Q` if K e1 and R a1; same for black (e8/h8/a8).
     **En passant**: if the detected last move is a pawn double step of the mover, ep = the skipped square.
 14. **FEN** = placement + side + castling + ep + `0 1`.
+
+## Re-reading with user-adjusted corners
+If the UI lets the user drag the 4 corners, skip steps 1–4 and run 5–14 with those corners
+(`scan(..., corners=quad)` in Python).
 
 ## Training data facts the app relies on
 - Top-left square is light in ~98 % of training boards (true for every real board).

@@ -23,7 +23,7 @@ from PIL import Image, ImageDraw, ImageFont
 from . import CLASSES, PIECE_CODES
 
 ML_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CACHE = os.path.join(ML_ROOT, ".cache")
+CACHE = os.environ.get("TEMPO_ML_CACHE", os.path.join(ML_ROOT, ".cache"))
 
 # Sets that look like what people actually play on get sampled more often.
 COMMON_SETS = {

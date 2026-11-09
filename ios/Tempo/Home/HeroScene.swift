@@ -10,7 +10,7 @@ final class HeroRenderer {
     static let shared = HeroRenderer()
     private(set) var image: UIImage?
     private var rendering = false
-    private static let version = 3
+    private static let version = 5
 
     func load(size: CGSize) {
         guard image == nil, !rendering, size.width > 0, size.height > 0 else { return }
@@ -108,7 +108,7 @@ enum HeroScene {
         let camera = SCNNode()
         camera.name = "camera"
         camera.camera = SCNCamera()
-        camera.camera!.fieldOfView = 34
+        camera.camera!.fieldOfView = 55
         camera.camera!.wantsHDR = true
         camera.camera!.bloomIntensity = 0.45
         camera.camera!.bloomThreshold = 0.9
@@ -299,23 +299,27 @@ enum HeroScene {
                 }
             }
         }
-        let box = SCNBox(width: 8.6, height: 0.12, length: 8.6, chamferRadius: 0.04)
+        // Playing surface: exactly 8×8 so the texture maps one square per unit.
+        let surface = SCNPlane(width: 8, height: 8)
         let top = SCNMaterial()
         top.lightingModel = .physicallyBased
         top.diffuse.contents = image
-        top.diffuse.contentsTransform = SCNMatrix4Translate(SCNMatrix4MakeScale(8.6 / 8, 8.6 / 8, 1), -0.0375, -0.0375, 0)
-        top.diffuse.wrapS = .clampToBorder
-        top.diffuse.wrapT = .clampToBorder
-        top.diffuse.borderColor = UIColor(red: 0.09, green: 0.06, blue: 0.045, alpha: 1)
-        top.roughness.contents = 0.28
+        top.roughness.contents = 0.3
         top.metalness.contents = 0.0
-        let side = SCNMaterial()
-        side.lightingModel = .physicallyBased
-        side.diffuse.contents = UIColor(red: 0.09, green: 0.06, blue: 0.045, alpha: 1)
-        side.roughness.contents = 0.4
-        box.materials = [side, side, side, side, top, side]
-        let node = SCNNode(geometry: box)
-        node.position = SCNVector3(0, 0, 0)
+        surface.materials = [top]
+        let surfaceNode = SCNNode(geometry: surface)
+        surfaceNode.eulerAngles.x = -.pi / 2
+        surfaceNode.position = SCNVector3(0, 0.061, 0)
+
+        // Dark, matte frame underneath.
+        let frame = SCNBox(width: 8.7, height: 0.12, length: 8.7, chamferRadius: 0.02)
+        let wood = SCNMaterial()
+        wood.lightingModel = .physicallyBased
+        wood.diffuse.contents = UIColor(red: 0.07, green: 0.05, blue: 0.04, alpha: 1)
+        wood.roughness.contents = 0.85
+        frame.materials = [wood]
+        let node = SCNNode(geometry: frame)
+        node.addChildNode(surfaceNode)
         return node
     }
 

@@ -229,9 +229,9 @@ def main():
                 run = 0.0
             if a.max_steps and step >= a.max_steps:
                 break
+        torch.save(model.state_dict(), a.out)
         m = (evaluate_detector if a.kind == "detector" else evaluate_reader)(model, vl, dev)
         print(f"== epoch {ep} val {m}", flush=True)
-        torch.save(model.state_dict(), a.out)
         if a.max_steps and step >= a.max_steps:
             break
     print("saved", a.out)
