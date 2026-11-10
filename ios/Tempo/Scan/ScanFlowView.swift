@@ -13,6 +13,7 @@ struct ScanFlowView: View {
     @State private var processing: UIImage?
     @State private var failure: (image: UIImage, message: String)?
     @State private var clipboardHasImage = UIPasteboard.general.hasImages
+    private let hasCamera = UIImagePickerController.isSourceTypeAvailable(.camera)
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -67,7 +68,7 @@ struct ScanFlowView: View {
                 VStack(alignment: .leading, spacing: 14) {
                     SheetHeader(title: "Scan position", onClose: { dismiss() })
                         .padding(.bottom, 2)
-                    Text("Capture the whole board — all four corners visible. Works with screens, screenshots and printed diagrams.")
+                    Text("Capture the whole board with all four corners visible — on a monitor, laptop, tablet or in a screenshot.")
                         .font(.system(size: 16))
                         .foregroundStyle(Palette.textSecondary)
                         .padding(.bottom, 10)
@@ -77,7 +78,8 @@ struct ScanFlowView: View {
                             SourceCard(icon: "camera", title: "Camera", subtitle: "Photograph a screen")
                         }
                         .buttonStyle(PressableStyle())
-                        .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
+                        .disabled(!hasCamera)
+                        .opacity(hasCamera ? 1 : 0.45)
 
                         PhotosPicker(selection: $photoItem, matching: .images, photoLibrary: .shared()) {
                             SourceCard(icon: "photo.on.rectangle.angled", title: "Photos", subtitle: "Screenshot or picture")

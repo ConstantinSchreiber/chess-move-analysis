@@ -880,17 +880,19 @@ def degrade(rng, img, photo):
     return np.ascontiguousarray(img)
 
 
-def make_scene(rng, assets):
+def make_scene(rng, assets, photo_prob=0.4):
     """Returns (img RGB uint8, corners float32[4,2] TL,TR,BR,BL or None, info)."""
     u = rng.random()
-    if u < 0.4:
+    if u < photo_prob:
         for _ in range(5):
             out = photo_scene(rng, assets)
             if out is not None:
                 img, corners, info = out
+                info["scene"] = "photo"
                 return degrade(rng, img, True), corners, info
     kind = rng.choices(["phone", "desktop", "crop", "tablet"], [0.38, 0.27, 0.22, 0.13])[0]
     img, corners, info = screen_scene(rng, assets, kind)
+    info["scene"] = kind
     return degrade(rng, img, False), corners, info
 
 
@@ -976,10 +978,10 @@ def zoom_crop(img, corners, expand=1.25, jitter=0.0, rng=None):
     return out, corners - np.array([x0, y0], np.float32)
 
 
-def reader_sample(rng, assets, R=384):
+def reader_sample(rng, assets, R=384, photo_prob=0.4):
     """Warped board (R,R,3) uint8 from jittered corners + labels."""
     while True:
-        img, corners, info = make_scene(rng, assets)
+        img, corners, info = make_scene(rng, assets, photo_prob)
         if corners is not None:
             break
     side = float(np.mean([np.linalg.norm(corners[i] - corners[(i + 1) % 4]) for i in range(4)]))

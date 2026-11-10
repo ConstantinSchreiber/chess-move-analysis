@@ -51,7 +51,7 @@ final class AppModel {
 
     #if DEBUG
     /// Launch arguments for screenshots and manual testing:
-    /// `-demoScan sample-photo`, `-demoAnalysis <FEN>`, `-demoSetup`, `-demoSettings`.
+    /// `-demoScan sample-photo`, `-demoScanSheet`, `-demoReview`, `-demoAnalysis <FEN>`, `-demoSetup`, `-demoSettings`.
     func applyDebugLaunchArguments() {
         let args = ProcessInfo.processInfo.arguments
         func value(after flag: String) -> String? {
@@ -64,6 +64,8 @@ final class AppModel {
             analyze(position: position, orientation: position.sideToMove, source: .board)
         } else if args.contains("-demoReview"), let review = Self.demoReview() {
             pendingDemoReview = review
+            startScan()
+        } else if args.contains("-demoScanSheet") {
             startScan()
         } else if args.contains("-demoSetup") {
             openSetup()

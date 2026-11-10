@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from tempo_vision.synth import Assets, detector_sample, reader_sample
 
 A = None
+PHOTO_PROB = float(os.environ.get("TEMPO_PHOTO_PROB", "0.4"))
 
 def init():
     global A
@@ -26,7 +27,7 @@ def work(args):
             img, corners = detector_sample(rng, A)
             lab = np.full((4, 2), np.nan, np.float32) if corners is None else corners.astype(np.float32)
         else:
-            img, cells, hl, fl = reader_sample(rng, A)
+            img, cells, hl, fl = reader_sample(rng, A, photo_prob=PHOTO_PROB)
             lab = (cells.astype(np.int8), hl.astype(np.uint8), np.uint8(fl))
         cv2.imwrite(os.path.join(out, "images", f"{i:07d}.jpg"), img[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 94])
         res.append((i, lab))
