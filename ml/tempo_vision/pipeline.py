@@ -43,6 +43,7 @@ class ScanResult:
     castling: str = "-"
     ep: str = "-"
     warped: np.ndarray | None = None
+    raw_cells: np.ndarray | None = None          # [8,8] reader argmax before chess-rule fixes (diagnostics)
 
 
 # ----------------------------------------------------------------------------- backends
@@ -317,8 +318,8 @@ def scan(backend, img, zoom=True, corners=None):
 def read_board(backend, img, corners, conf):
     warped = warp_board(img, corners, backend.R)
     probs, hl, p_flip = backend.read(warped)
-    cls = probs.argmax(-1)
-    cls = fix_kings(cls, probs)
+    raw = probs.argmax(-1)
+    cls = fix_kings(raw, probs)
     cls = fix_back_rank_pawns(cls, probs)
     flipped = decide_flipped(p_flip, cls)
 
@@ -341,4 +342,5 @@ def read_board(backend, img, corners, conf):
         found=True, fen=fen, corners=corners, detector_conf=conf, board=[CLASSES[k] for k in board],
         probs=sqprob, uncertain=[sq_name(s) for s in range(64) if sqprob[s] < UNCERTAIN_PROB],
         flipped=bool(flipped), flipped_prob=p_flip, side_to_move=stm, stm_source=src,
-        last_move=(sq_name(last[0]), sq_name(last[1])) if last else None, castling=cast, ep=ep, warped=warped)
+        last_move=(sq_name(last[0]), sq_name(last[1])) if last else None, castling=cast, ep=ep, warped=warped,
+        raw_cells=raw)

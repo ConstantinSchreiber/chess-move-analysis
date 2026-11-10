@@ -14,6 +14,7 @@ ap.add_argument("--coreml")
 ap.add_argument("--torch", nargs=2)
 ap.add_argument("--n", type=int, default=300)
 ap.add_argument("--seed", type=int, default=12345)
+ap.add_argument("--photo-prob", type=float, default=0.4)
 a = ap.parse_args()
 be = CoreMLBackend(a.coreml) if a.coreml else TorchBackend(*a.torch)
 A = Assets()
@@ -22,10 +23,11 @@ np.random.seed(a.seed)
 n = found = place = orient = sq = 0
 real_n = real_place = real_orient = 0
 cell_ok = cell_n = board_cells_ok = 0
+raw_ok = raw_sq = 0
 stm_n = stm_ok = 0
 corner_err = []
 for i in range(a.n):
-    img, corners, info = make_scene(rng, A)
+    img, corners, info = make_scene(rng, A, a.photo_prob)
     res = scan(be, img)
     n += 1
     if not res.found:
@@ -42,6 +44,8 @@ for i in range(a.n):
     from tempo_vision import CLASSES as C
     pred_cells = placement_to_cells(np.array([C.index(x) for x in res.board]), res.flipped)
     ok = pred_cells == info["cells"]
+    raw_ok += (res.raw_cells == info["cells"]).all()
+    raw_sq += (res.raw_cells == info["cells"]).sum()
     cell_ok += ok.sum(); cell_n += 64; board_cells_ok += ok.all()
     if info["stm"] is not None:  # realistic (database) position
         real_n += 1
@@ -51,6 +55,7 @@ for i in range(a.n):
         stm_n += 1
         stm_ok += res.side_to_move == info["stm"]
 ce = np.array(corner_err)
+print(f"reader argmax (before chess-rule fixes, image space): square acc {raw_sq / max(found * 64, 1):.4f}, boards exact {raw_ok}/{found}")
 print(f"image-space reading: square acc {cell_ok / max(cell_n, 1):.4f}, boards all-64-correct {board_cells_ok}/{found}")
 print(f"realistic positions: {real_n}, placement exact {real_place}/{real_n}, orientation {real_orient}/{real_n}")
 print(f"scenes {n}: found {found}, placement exact {place}/{n} ({place / n:.3f}), orientation {orient}/{found}, "
