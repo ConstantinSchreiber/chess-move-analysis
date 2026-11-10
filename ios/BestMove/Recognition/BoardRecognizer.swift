@@ -22,7 +22,7 @@ final class BoardRecognizer: @unchecked Sendable {
 
     /// Longest side of the working image; larger photos are downscaled first.
     private let workingMaxSide: CGFloat = 2048
-    private let queue = DispatchQueue(label: "tempo.recognizer", qos: .userInitiated)
+    private let queue = DispatchQueue(label: "bestmove.recognizer", qos: .userInitiated)
     private var detector: MLModel?
     private var reader: MLModel?
 

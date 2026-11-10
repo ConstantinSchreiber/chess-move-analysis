@@ -150,8 +150,8 @@ final class CameraController: NSObject, @unchecked Sendable {
     private(set) var hasTorch = false
     private(set) var torchOn = false
 
-    @ObservationIgnored private let sessionQueue = DispatchQueue(label: "tempo.camera.session")
-    @ObservationIgnored private let frameQueue = DispatchQueue(label: "tempo.camera.frames", qos: .userInitiated)
+    @ObservationIgnored private let sessionQueue = DispatchQueue(label: "bestmove.camera.session")
+    @ObservationIgnored private let frameQueue = DispatchQueue(label: "bestmove.camera.frames", qos: .userInitiated)
     @ObservationIgnored private let photoOutput = AVCapturePhotoOutput()
     @ObservationIgnored private let videoOutput = AVCaptureVideoDataOutput()
     @ObservationIgnored private var device: AVCaptureDevice?

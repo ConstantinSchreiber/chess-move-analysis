@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Tempo</string>
+	<string>Best Move</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,10 +22,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.constantinschreiber.tempo</string>
+			<string>com.constantinschreiber.bestmove</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>tempo</string>
+				<string>bestmove</string>
 			</array>
 		</dict>
 	</array>
@@ -36,7 +36,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Tempo uses the camera to photograph a chess board so it can read the position. Photos stay on your device.</string>
+	<string>Best Move uses the camera to photograph a chess board so it can read the position. Photos stay on your device.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

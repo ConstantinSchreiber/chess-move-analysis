@@ -1,7 +1,7 @@
 #!/bin/sh
 # Downloads the Stockfish NNUE network(s) the vendored engine expects.
 #
-#   ios/scripts/fetch-nnue.sh [destDir]      (default: ios/Tempo/Resources/NNUE)
+#   ios/scripts/fetch-nnue.sh [destDir]      (default: ios/BestMove/Resources/NNUE)
 #
 # Net names are read from the vendored src/evaluate.h (`#define EvalFileDefaultName*`), so a
 # Stockfish upgrade needs no edits here. Each file is verified against the SHA-256 prefix encoded
@@ -12,7 +12,7 @@ set -eu
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 IOS_DIR=$(dirname "$SCRIPT_DIR")
 EVAL_H="$IOS_DIR/Packages/StockfishKit/Sources/CStockfish/src/evaluate.h"
-DEST=${1:-"$IOS_DIR/Tempo/Resources/NNUE"}
+DEST=${1:-"$IOS_DIR/BestMove/Resources/NNUE"}
 
 fail() {
     # "error:" prefix makes Xcode surface the message as a build error.

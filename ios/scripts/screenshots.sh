@@ -9,7 +9,7 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 DEVICE_NAME=${1:-"iPhone 16 Pro Max"}
 OUT="$ROOT/docs/screenshots"
 DERIVED="$ROOT/ios/build/screenshots"
-BUNDLE=com.constantinschreiber.tempo
+BUNDLE=com.constantinschreiber.bestmove
 mkdir -p "$OUT"
 
 UDID=$(xcrun simctl list devices available -j | /usr/bin/python3 -c "
@@ -24,9 +24,9 @@ xcrun simctl bootstatus "$UDID" -b >/dev/null
 xcrun simctl status_bar "$UDID" override --time 9:41 --dataNetwork wifi --wifiBars 3 \
   --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
 
-xcodebuild -project "$ROOT/ios/Tempo.xcodeproj" -scheme Tempo -configuration Debug \
+xcodebuild -project "$ROOT/ios/BestMove.xcodeproj" -scheme BestMove -configuration Debug \
   -destination "platform=iOS Simulator,id=$UDID" -derivedDataPath "$DERIVED" build -quiet
-xcrun simctl install "$UDID" "$DERIVED/Build/Products/Debug-iphonesimulator/Tempo.app"
+xcrun simctl install "$UDID" "$DERIVED/Build/Products/Debug-iphonesimulator/BestMove.app"
 
 shot() {
   local name=$1 wait=$2; shift 2

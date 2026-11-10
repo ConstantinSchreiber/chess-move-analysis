@@ -1,4 +1,4 @@
-// Renders the Tempo app icon (1024×1024 PNG) with SceneKit: a lathed gold pawn inside gold
+// Renders the Best Move app icon (1024×1024 PNG) with SceneKit: a lathed gold pawn inside gold
 // viewfinder brackets on a warm near-black field.
 // Usage: swift ios/scripts/render-icon.swift <output.png>
 import AppKit

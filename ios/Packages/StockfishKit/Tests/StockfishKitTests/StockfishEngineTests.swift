@@ -12,7 +12,7 @@ final class StockfishEngineTests: XCTestCase {
         return URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent("Tempo/Resources/NNUE")
+            .appendingPathComponent("BestMove/Resources/NNUE")
     }()
 
     static let startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

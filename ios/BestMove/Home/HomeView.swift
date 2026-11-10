@@ -55,7 +55,7 @@ struct HomeView: View {
 
     private var headline: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Tempo").eyebrowStyle(Palette.gold)
+            Text("Best Move").eyebrowStyle(Palette.gold)
             Text("Find the move\nthat matters.")
                 .font(.display(42, weight: .semibold))
                 .foregroundStyle(Palette.textPrimary)

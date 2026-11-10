@@ -26,7 +26,7 @@ for await snapshot in StockfishEngine.shared.analyze(fen: fen, multiPV: 3) {
 
 `StockfishEngine.networkFileName` (currently `nn-1a298aa575a0.nnue`, ~94 MB; Stockfish 19 uses a
 single net) is not in git. `ios/scripts/fetch-nnue.sh [destDir]` downloads it (default
-`ios/Tempo/Resources/NNUE/`), checks the SHA-256 prefix in its name, and is a no-op when current.
+`ios/BestMove/Resources/NNUE/`), checks the SHA-256 prefix in its name, and is a no-op when current.
 
 In the app target:
 1. Pre-build script phase: `"$SRCROOT/scripts/fetch-nnue.sh"` (adjust the path to the project

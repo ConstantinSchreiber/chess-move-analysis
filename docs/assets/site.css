@@ -1,0 +1,106 @@
+:root {
+  --bg: #0a0b0e;
+  --surface: #131519;
+  --raised: #1a1d23;
+  --stroke: rgba(255, 255, 255, 0.08);
+  --text: #f4efe6;
+  --text-2: #a19e98;
+  --text-3: #6b6964;
+  --gold: #e6b85c;
+  --gold-light: #f3d08c;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 16px 72px;
+}
+
+h1, h2, h3 {
+  font-family: "New York", ui-serif, Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: 40px; margin: 18px 0 8px; }
+h2 { font-size: 26px; margin: 48px 0 12px; }
+h3 { font-size: 19px; margin: 28px 0 6px; }
+
+p, li { color: var(--text-2); }
+strong { color: var(--text); font-weight: 600; }
+
+a { color: var(--gold); text-decoration: none; }
+a:hover { color: var(--gold-light); text-decoration: underline; }
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.hero { display: flex; flex-direction: column; align-items: flex-start; }
+.hero img {
+  width: 96px;
+  height: 96px;
+  border-radius: 22px;
+  border: 1px solid var(--stroke);
+}
+.lede { font-size: 20px; color: var(--text); max-width: 34em; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+  padding: 20px 22px;
+  margin: 16px 0;
+}
+.card p:last-child, .card ul:last-child { margin-bottom: 0; }
+.card h3:first-child { margin-top: 0; }
+
+ul { padding-left: 1.2em; }
+li { margin: 6px 0; }
+
+.shots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 32px 0 8px;
+}
+.shots img {
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  border: 1px solid var(--stroke);
+  background: var(--surface);
+}
+
+footer {
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 1px solid var(--stroke);
+  font-size: 14px;
+  color: var(--text-3);
+}
+footer a { color: var(--text-2); }
+
+@media (max-width: 520px) {
+  h1 { font-size: 32px; }
+  .lede { font-size: 18px; }
+  .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shots img:nth-child(3) { display: none; }
+}

@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B4B1ABCA42D941961C207402"
-               BuildableName = "Tempo.app"
-               BlueprintName = "Tempo"
-               ReferencedContainer = "container:Tempo.xcodeproj">
+               BlueprintIdentifier = "841B58B0BB64F6603A46A48F"
+               BuildableName = "BestMove.app"
+               BlueprintName = "BestMove"
+               ReferencedContainer = "container:BestMove.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,10 +29,10 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C337B61AC76E84E27EF729D6"
-               BuildableName = "TempoTests.xctest"
-               BlueprintName = "TempoTests"
-               ReferencedContainer = "container:Tempo.xcodeproj">
+               BlueprintIdentifier = "96E1EC36B44C187928F232DA"
+               BuildableName = "BestMoveTests.xctest"
+               BlueprintName = "BestMoveTests"
+               ReferencedContainer = "container:BestMove.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -43,10 +43,10 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "905B84C3A1A3AD8641726070"
-               BuildableName = "TempoUITests.xctest"
-               BlueprintName = "TempoUITests"
-               ReferencedContainer = "container:Tempo.xcodeproj">
+               BlueprintIdentifier = "6EDE67B6CBEA5441F4F5B1E1"
+               BuildableName = "BestMoveUITests.xctest"
+               BlueprintName = "BestMoveUITests"
+               ReferencedContainer = "container:BestMove.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -60,10 +60,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B4B1ABCA42D941961C207402"
-            BuildableName = "Tempo.app"
-            BlueprintName = "Tempo"
-            ReferencedContainer = "container:Tempo.xcodeproj">
+            BlueprintIdentifier = "841B58B0BB64F6603A46A48F"
+            BuildableName = "BestMove.app"
+            BlueprintName = "BestMove"
+            ReferencedContainer = "container:BestMove.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -72,10 +72,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C337B61AC76E84E27EF729D6"
-               BuildableName = "TempoTests.xctest"
-               BlueprintName = "TempoTests"
-               ReferencedContainer = "container:Tempo.xcodeproj">
+               BlueprintIdentifier = "96E1EC36B44C187928F232DA"
+               BuildableName = "BestMoveTests.xctest"
+               BlueprintName = "BestMoveTests"
+               ReferencedContainer = "container:BestMove.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -83,10 +83,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "905B84C3A1A3AD8641726070"
-               BuildableName = "TempoUITests.xctest"
-               BlueprintName = "TempoUITests"
-               ReferencedContainer = "container:Tempo.xcodeproj">
+               BlueprintIdentifier = "6EDE67B6CBEA5441F4F5B1E1"
+               BuildableName = "BestMoveUITests.xctest"
+               BlueprintName = "BestMoveUITests"
+               ReferencedContainer = "container:BestMove.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -107,10 +107,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B4B1ABCA42D941961C207402"
-            BuildableName = "Tempo.app"
-            BlueprintName = "Tempo"
-            ReferencedContainer = "container:Tempo.xcodeproj">
+            BlueprintIdentifier = "841B58B0BB64F6603A46A48F"
+            BuildableName = "BestMove.app"
+            BlueprintName = "BestMove"
+            ReferencedContainer = "container:BestMove.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -126,10 +126,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B4B1ABCA42D941961C207402"
-            BuildableName = "Tempo.app"
-            BlueprintName = "Tempo"
-            ReferencedContainer = "container:Tempo.xcodeproj">
+            BlueprintIdentifier = "841B58B0BB64F6603A46A48F"
+            BuildableName = "BestMove.app"
+            BlueprintName = "BestMove"
+            ReferencedContainer = "container:BestMove.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

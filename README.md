@@ -1,6 +1,6 @@
-# Tempo — scan a chess position, get the best move
+# Best Move — scan a chess position, get the best move
 
-Point your iPhone at a chess board on any screen, or import a screenshot. Tempo reads the position
+Point your iPhone at a chess board on any screen, or import a screenshot. Best Move reads the position
 and works out whose move it is. Stockfish 19 then analyses it **on-device**. Move pieces to explore
 variations; the engine follows along.
 
@@ -16,7 +16,7 @@ variations; the engine follows along.
 ```
 ios/
   project.yml              XcodeGen spec (the .xcodeproj is generated from it and committed)
-  Tempo/                   SwiftUI app
+  BestMove/                SwiftUI app
     App/                   entry point, AppModel (navigation, history, engine warm-up)
     Design/                colours, typography, buttons, cards
     Board/                 BoardView (Canvas squares + animated pieces), themes, piece sets
@@ -26,38 +26,40 @@ ios/
     Analysis/              AnalysisModel (move tree + engine), analysis screen
     Settings/, Storage/    preferences, recent positions
     Resources/             assets, Core ML models, NNUE (downloaded), samples
-  TempoTests/              recognition unit + end-to-end tests
+  BestMoveTests/           recognition unit + end-to-end tests
+  BestMoveUITests/         board interaction UI test
   Packages/ChessCore/      move generation (perft-verified), FEN, SAN, validation, move tree
   Packages/StockfishKit/   Stockfish 19 in-process with an async Swift API
-  scripts/                 fetch-nnue.sh (pre-build), render-icon.swift
+  scripts/                 fetch-nnue.sh (pre-build), setup-signing, release, screenshots, icon
 ml/                        synthetic data, training, Core ML export, evaluation (see ml/README.md)
-docs/                      App Store checklist, privacy policy
+docs/                      publishing guide; support site + privacy policy (GitHub Pages)
 ```
 
 ## Build & run
 
-Requirements: Xcode 16+ (Xcode 26 for App Store uploads), iOS 17+ device or simulator.
+Requirements: Xcode 27 (the App Store needs the iOS 26 SDK or later), iOS 17+ device or simulator.
 
 ```sh
-brew install xcodegen          # only needed if you change project.yml
-cd ios && xcodegen generate    # regenerates Tempo.xcodeproj
-open Tempo.xcodeproj
+brew install xcodegen               # only needed if you change project.yml
+ios/scripts/setup-signing.sh        # once, after signing in to Xcode: sets your Team ID
+open ios/BestMove.xcodeproj         # pick your iPhone, press Run
 ```
 
-The first build downloads the Stockfish network (~94 MB) via `scripts/fetch-nnue.sh`. To run on
-an iPhone, set your team in *Signing & Capabilities* (or `DEVELOPMENT_TEAM` in `project.yml`).
+The first build downloads the Stockfish network (~94 MB) via `scripts/fetch-nnue.sh`.
+Publishing (App Store record, upload, listing text, screenshots) is covered step by step in
+[`docs/APP_STORE.md`](docs/APP_STORE.md). `ios/scripts/release.sh` archives and uploads a build.
 
 Tests:
 
 ```sh
 cd ios/Packages/ChessCore && swift test             # rules, perft, SAN, move tree
 cd ios/Packages/StockfishKit && swift test          # engine bridge
-xcodebuild test -project ios/Tempo.xcodeproj -scheme Tempo \
-  -destination 'platform=iOS Simulator,name=iPhone 16 Pro'   # recognition
+xcodebuild test -project ios/BestMove.xcodeproj -scheme BestMove \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'   # recognition + UI
 ```
 
 Debug launch arguments (handy for screenshots): `-demoScan sample-photo`, `-demoReview`,
-`-demoAnalysis "<FEN>"`, `-demoSetup`, `-demoSettings`. URL scheme: `tempo://analyze?fen=<FEN>`.
+`-demoAnalysis "<FEN>"`, `-demoSetup`, `-demoSettings`. URL scheme: `bestmove://analyze?fen=<FEN>`.
 
 ## How recognition works
 

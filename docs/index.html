@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Best Move — Chess Scanner</title>
+  <meta name="description" content="Scan any chess board with your iPhone and see the best move. Stockfish runs on your device, fully offline.">
+  <link rel="icon" href="assets/icon.png">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<main>
+  <section class="hero">
+    <img src="assets/icon.png" alt="Best Move app icon">
+    <h1>Best Move</h1>
+    <p class="eyebrow">Chess scanner for iPhone</p>
+    <p class="lede">Point your camera at a chess board on any screen, or import a screenshot.
+      Best Move reads the position and whose turn it is, then shows the best move.
+      The Stockfish engine runs on your iPhone, fully offline.</p>
+  </section>
+
+  <div class="shots">
+    <img src="screenshots/1-home.png" alt="Home screen" loading="lazy">
+    <img src="screenshots/2-review.png" alt="Confirming a scanned position" loading="lazy">
+    <img src="screenshots/3-analysis.png" alt="Engine analysis with the best move" loading="lazy">
+  </div>
+
+  <h2>Support</h2>
+  <div class="card">
+    <p>Found a position it reads wrongly, or something not working? Please
+      <a href="https://github.com/ConstantinSchreiber/chess-move-analysis/issues/new">open an issue on GitHub</a>.
+      A screenshot of the board helps a lot.</p>
+  </div>
+
+  <h2>Questions</h2>
+
+  <h3>How do I get the best recognition?</h3>
+  <p>Fill most of the frame with the board, keep it roughly square to the camera and avoid glare.
+    Screenshots work best of all. Squares the app is unsure about are outlined on the review screen,
+    and you can fix any piece by tapping it.</p>
+
+  <h3>How does it know whose move it is?</h3>
+  <p>From the last-move highlight that most chess sites and apps show, or from a check. If neither is
+    visible, it asks you. You can always switch the side to move before analysing.</p>
+
+  <h3>Does it work with a real wooden board?</h3>
+  <p>Not yet. Recognition is built for boards on screens: chess sites and apps, books and diagrams
+    on a monitor or phone.</p>
+
+  <h3>Does it need an internet connection?</h3>
+  <p>No. Recognition and analysis both run on your iPhone. Nothing is uploaded.</p>
+
+  <h3>Which devices are supported?</h3>
+  <p>iPhone with iOS 17 or later. Newer iPhones analyse faster.</p>
+
+  <h2>Privacy</h2>
+  <p>Best Move collects no data. Read the <a href="privacy.html">privacy policy</a>.</p>
+
+  <h2>Open source</h2>
+  <p>Best Move is free software under the GNU General Public License v3, because it includes the
+    <a href="https://stockfishchess.org">Stockfish</a> chess engine. The complete source code is at
+    <a href="https://github.com/ConstantinSchreiber/chess-move-analysis">github.com/ConstantinSchreiber/chess-move-analysis</a>.</p>
+
+  <footer>
+    © 2026 Constantin Schreiber · <a href="privacy.html">Privacy</a> ·
+    <a href="https://github.com/ConstantinSchreiber/chess-move-analysis">Source</a>
+  </footer>
+</main>
+</body>
+</html>

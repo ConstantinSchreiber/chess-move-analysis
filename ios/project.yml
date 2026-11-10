@@ -1,4 +1,4 @@
-name: Tempo
+name: BestMove
 options:
   bundleIdPrefix: com.constantinschreiber
   deploymentTarget:
@@ -22,15 +22,15 @@ packages:
   StockfishKit:
     path: Packages/StockfishKit
 targets:
-  Tempo:
+  BestMove:
     type: application
     platform: iOS
     sources:
-      - path: Tempo
+      - path: BestMove
         excludes:
           - "Resources/NNUE"
           - "Resources/NNUE/**"
-      - path: Tempo/Resources/NNUE
+      - path: BestMove/Resources/NNUE
         type: folder
         buildPhase: resources
     dependencies:
@@ -39,13 +39,13 @@ targets:
     preBuildScripts:
       - name: Fetch Stockfish NNUE networks
         script: |
-          "${SRCROOT}/scripts/fetch-nnue.sh" "${SRCROOT}/Tempo/Resources/NNUE"
+          "${SRCROOT}/scripts/fetch-nnue.sh" "${SRCROOT}/BestMove/Resources/NNUE"
         basedOnDependencyAnalysis: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.tempo
-        PRODUCT_NAME: Tempo
-        INFOPLIST_KEY_CFBundleDisplayName: Tempo
+        PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.bestmove
+        PRODUCT_NAME: BestMove
+        INFOPLIST_KEY_CFBundleDisplayName: Best Move
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
@@ -55,9 +55,9 @@ targets:
         ENABLE_PREVIEWS: YES
         GENERATE_INFOPLIST_FILE: NO
     info:
-      path: Tempo/Info.plist
+      path: BestMove/Info.plist
       properties:
-        CFBundleDisplayName: Tempo
+        CFBundleDisplayName: Best Move
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSRequiresIPhoneOS: true
@@ -69,43 +69,43 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
-        NSCameraUsageDescription: Tempo uses the camera to photograph a chess board so it can read the position. Photos stay on your device.
+        NSCameraUsageDescription: Best Move uses the camera to photograph a chess board so it can read the position. Photos stay on your device.
         CFBundleURLTypes:
-          - CFBundleURLName: com.constantinschreiber.tempo
-            CFBundleURLSchemes: [tempo]
-  TempoTests:
+          - CFBundleURLName: com.constantinschreiber.bestmove
+            CFBundleURLSchemes: [bestmove]
+  BestMoveTests:
     type: bundle.unit-test
     platform: iOS
-    sources: [TempoTests]
+    sources: [BestMoveTests]
     dependencies:
-      - target: Tempo
+      - target: BestMove
       - package: ChessCore
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.tempo.tests
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Tempo.app/Tempo"
+        PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.bestmove.tests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/BestMove.app/BestMove"
         BUNDLE_LOADER: "$(TEST_HOST)"
-  TempoUITests:
+  BestMoveUITests:
     type: bundle.ui-testing
     platform: iOS
-    sources: [TempoUITests]
+    sources: [BestMoveUITests]
     dependencies:
-      - target: Tempo
+      - target: BestMove
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.tempo.uitests
-        TEST_TARGET_NAME: Tempo
+        PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.bestmove.uitests
+        TEST_TARGET_NAME: BestMove
 schemes:
-  Tempo:
+  BestMove:
     build:
       targets:
-        Tempo: all
-        TempoTests: [test]
-        TempoUITests: [test]
+        BestMove: all
+        BestMoveTests: [test]
+        BestMoveUITests: [test]
     test:
-      targets: [TempoTests, TempoUITests]
+      targets: [BestMoveTests, BestMoveUITests]
     run:
       config: Debug
     archive:

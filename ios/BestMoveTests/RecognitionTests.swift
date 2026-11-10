@@ -1,6 +1,6 @@
 import XCTest
 import ChessCore
-@testable import Tempo
+@testable import BestMove
 
 final class InterpretationTests: XCTestCase {
     /// Builds reader outputs for a board given as FEN placement, seen from `flipped` side.

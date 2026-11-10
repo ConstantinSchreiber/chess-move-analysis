@@ -2,7 +2,7 @@ import SwiftUI
 import ChessCore
 
 @main
-struct TempoApp: App {
+struct BestMoveApp: App {
     @State private var app = AppModel()
 
     var body: some Scene {
@@ -51,7 +51,7 @@ struct RootView: View {
             SettingsView()
         }
         .onOpenURL { url in
-            // tempo://analyze?fen=…  — handy for testing and sharing.
+            // bestmove://analyze?fen=…  — handy for testing and sharing.
             guard let fen = URLComponents(url: url, resolvingAgainstBaseURL: false)?
                 .queryItems?.first(where: { $0.name == "fen" })?.value,
                   let position = try? Position(fen: fen) else { return }

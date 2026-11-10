@@ -91,7 +91,7 @@ struct SettingsView: View {
                             }
                         }
                         .card(padding: 0, radius: 20)
-                        Text("Tempo \(Bundle.main.appVersion) · Stockfish 19 · All processing happens on this device.")
+                        Text("Best Move \(Bundle.main.appVersion) · Stockfish 19 · All processing happens on this device.")
                             .font(.system(size: 12))
                             .foregroundStyle(Palette.textTertiary)
                     }
@@ -163,10 +163,10 @@ struct LicensesView: View {
                     Spacer()
                 }
                 Text("Licenses").font(.display(30)).foregroundStyle(Palette.textPrimary)
-                block("Tempo", "Tempo is free software, released under the GNU General Public License v3. Its complete source code is available at github.com/ConstantinSchreiber/chess-move-analysis.")
+                block("Best Move", "Best Move is free software, released under the GNU General Public License v3. Its complete source code is available at github.com/ConstantinSchreiber/chess-move-analysis.")
                 block("Stockfish 19", "Copyright © the Stockfish developers (see AUTHORS). Licensed under the GNU General Public License v3. stockfishchess.org — github.com/official-stockfish/Stockfish")
                 block("Piece sets", PieceSet.allCases.map { "\($0.name): \($0.credit)" }.joined(separator: "\n"))
-                block("Board recognition", "Neural networks trained by the Tempo project on synthetic boards rendered from openly licensed piece sets and positions from the lichess.org open database (CC0).")
+                block("Board recognition", "Neural networks trained for Best Move on synthetic boards rendered from openly licensed piece sets and positions from the lichess.org open database (CC0).")
             }
             .padding(20)
         }
