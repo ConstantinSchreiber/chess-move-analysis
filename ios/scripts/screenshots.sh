@@ -6,7 +6,7 @@ set -euo pipefail
 
 export DEVELOPER_DIR=${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-DEVICE_NAME=${1:-"iPhone 16 Pro Max"}
+DEVICE_NAME=${1:-"iPhone 18 Pro Max"}
 OUT="$ROOT/docs/screenshots"
 DERIVED="$ROOT/ios/build/screenshots"
 BUNDLE=com.constantinschreiber.bestmove
