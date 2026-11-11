@@ -20,12 +20,14 @@ final class HeroRenderer {
         let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("hero-v\(Self.version)-\(Int(pixelSize.width))x\(Int(pixelSize.height)).jpg")
         Task.detached(priority: .utility) {
-            var result: UIImage?
+            let result: UIImage?
             if let data = try? Data(contentsOf: url), let cached = UIImage(data: data, scale: scale) {
                 result = cached
             } else if let rendered = HeroScene.render(pixelSize: pixelSize) {
                 result = UIImage(cgImage: rendered.cgImage!, scale: scale, orientation: .up)
                 try? rendered.jpegData(compressionQuality: 0.9)?.write(to: url, options: .atomic)
+            } else {
+                result = nil
             }
             await MainActor.run {
                 withAnimation(.easeOut(duration: 0.8)) { self.image = result }
