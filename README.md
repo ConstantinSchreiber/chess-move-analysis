@@ -55,7 +55,7 @@ Tests:
 cd ios/Packages/ChessCore && swift test             # rules, perft, SAN, move tree
 cd ios/Packages/StockfishKit && swift test          # engine bridge
 xcodebuild test -project ios/BestMove.xcodeproj -scheme BestMove \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'   # recognition + UI
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro'   # recognition + UI
 ```
 
 Debug launch arguments (handy for screenshots): `-demoScan sample-photo`, `-demoReview`,
