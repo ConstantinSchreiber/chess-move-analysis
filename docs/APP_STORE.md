@@ -31,7 +31,10 @@ browser. Everything else is scripted or already done.
 3. Open `ios/BestMove.xcodeproj`, choose your iPhone in the device menu at the top and press
    **Run** (⌘R). The first build takes a few minutes because Stockfish is compiled.
 
-Running from Xcode registers the phone with your developer account. After the first time it also
+Or, without opening Xcode, run `ios/scripts/run-device.sh`. It builds a Release build (the engine is
+faster than in Debug), installs it on the connected iPhone and launches it.
+
+Running on the phone once registers it with your developer account. After the first time it also
 works over Wi‑Fi.
 
 ## 3. Create the app in App Store Connect (5 minutes)

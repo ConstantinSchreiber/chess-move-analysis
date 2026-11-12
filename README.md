@@ -30,7 +30,7 @@ ios/
   BestMoveUITests/         board interaction UI test
   Packages/ChessCore/      move generation (perft-verified), FEN, SAN, validation, move tree
   Packages/StockfishKit/   Stockfish 19 in-process with an async Swift API
-  scripts/                 fetch-nnue.sh (pre-build), setup-signing, release, screenshots, icon
+  scripts/                 fetch-nnue.sh (pre-build), setup-signing, run-device, release, screenshots, icon
 ml/                        synthetic data, training, Core ML export, evaluation (see ml/README.md)
 docs/                      publishing guide; support site + privacy policy (GitHub Pages)
 ```
@@ -42,7 +42,8 @@ Requirements: Xcode 27 (the App Store needs the iOS 26 SDK or later), iOS 17+ de
 ```sh
 brew install xcodegen               # only needed if you change project.yml
 ios/scripts/setup-signing.sh        # once, after signing in to Xcode: sets your Team ID
-open ios/BestMove.xcodeproj         # pick your iPhone, press Run
+open ios/BestMove.xcodeproj         # pick your iPhone, press Run (Debug)
+ios/scripts/run-device.sh           # or: Release build, install and launch on the connected iPhone
 ```
 
 The first build downloads the Stockfish network (~94 MB) via `scripts/fetch-nnue.sh`.
