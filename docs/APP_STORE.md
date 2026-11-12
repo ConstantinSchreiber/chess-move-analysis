@@ -45,9 +45,8 @@ New App:
 - Platforms: **iOS**
 - Name: **Best Move: Chess Scanner**
 - Primary language: **English (U.S.)**
-- Bundle ID: **com.constantinschreiber.bestmove**. It appears in the list after the app has been
-  built once with your team (step 2). Otherwise register it at developer.apple.com →
-  Identifiers → +.
+- Bundle ID: **com.constantinschreiber.bestmove**. It is already registered with your team
+  (`release.sh --export` did that on 12 November 2026), so it is in the list.
 - SKU: **bestmove-ios**
 - User access: Full access
 
