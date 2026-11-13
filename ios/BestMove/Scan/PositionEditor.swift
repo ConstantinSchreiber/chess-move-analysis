@@ -126,7 +126,7 @@ struct PiecePalette: View {
                     ForEach([PieceKind.king, .queen, .rook, .bishop, .knight, .pawn], id: \.self) { kind in
                         let piece = Piece(color, kind)
                         toolButton(.piece(piece), label: piece.description) {
-                            Image(pieceSet.imageName(piece)).resizable().padding(4)
+                            Image(pieceSet.imageName(piece)).resizable().scaledToFit().padding(4)
                         }
                     }
                 }
