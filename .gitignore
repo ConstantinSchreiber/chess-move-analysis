@@ -32,3 +32,6 @@ ml/testdata/private/
 
 # Playwright MCP scratch output
 .playwright-mcp/
+
+# Rendered App Store screenshots (regenerate: node ios/scripts/store-screenshots.mjs)
+docs/store/screenshots/

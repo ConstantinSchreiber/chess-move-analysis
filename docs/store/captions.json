@@ -1,0 +1,24 @@
+{
+  "_comment": "Screenshot captions per language: [eyebrow, headline]; *text* is drawn in gold, | forces a line break. Rendered by ios/scripts/store-screenshots.py.",
+  "shots": ["hero", "camera", "review", "analysis", "setup", "home"],
+  "captions": {
+    "en": [["Stockfish 19", "See the *best move* in seconds"], ["Scan", "Point at *any board* on any screen"], ["Smart check", "Knows every piece and *whose move* it is"], ["Analysis", "Explore every line, *fully offline*"], ["Set up", "Any position, *by hand or FEN*"], ["Free", "No account. No ads. *No tracking.*"]],
+    "de": [["Stockfish 19", "Der *beste Zug* in Sekunden"], ["Scannen", "*Jedes Brett* auf jedem Bildschirm"], ["Automatisch geprüft", "Erkennt jede Figur und *wer am Zug* ist"], ["Analyse", "Jede Variante, *komplett offline*"], ["Aufbauen", "Jede Stellung, *per Hand oder FEN*"], ["Kostenlos", "Kein Konto. Keine Werbung. *Kein Tracking.*"]],
+    "fr": [["Stockfish 19", "Le *meilleur coup* en quelques secondes"], ["Scanner", "Visez *n'importe quel échiquier* à l'écran"], ["Vérification", "Chaque pièce et *le trait*, reconnus"], ["Analyse", "Toutes les variantes, *hors ligne*"], ["Position", "Toute position, *à la main ou en FEN*"], ["Gratuit", "Sans compte. Sans pub. *Sans suivi.*"]],
+    "es": [["Stockfish 19", "La *mejor jugada* en segundos"], ["Escanear", "Apunta a *cualquier tablero* en pantalla"], ["Revisión", "Reconoce cada pieza y *de quién es el turno*"], ["Análisis", "Explora cada línea, *sin conexión*"], ["Posición", "Cualquier posición, *a mano o con FEN*"], ["Gratis", "Sin cuenta. Sin anuncios. *Sin rastreo.*"]],
+    "pt": [["Stockfish 19", "O *melhor lance* em segundos"], ["Escanear", "Aponte para *qualquer tabuleiro* na tela"], ["Conferência", "Reconhece cada peça e *de quem é a vez*"], ["Análise", "Explore cada linha, *sem internet*"], ["Posição", "Qualquer posição, *à mão ou por FEN*"], ["Grátis", "Sem conta. Sem anúncios. *Sem rastreio.*"]],
+    "it": [["Stockfish 19", "La *mossa migliore* in pochi secondi"], ["Scansiona", "Inquadra *qualsiasi scacchiera* sullo schermo"], ["Controllo", "Riconosce ogni pezzo e *a chi tocca*"], ["Analisi", "Esplora ogni variante, *offline*"], ["Posizione", "Qualsiasi posizione, *a mano o con FEN*"], ["Gratis", "Niente account. *Niente pubblicità.*"]],
+    "ru": [["Stockfish 19", "*Лучший ход* за секунды"], ["Сканирование", "Наведите на *доску на любом экране*"], ["Проверка", "Распознаёт фигуры и *чей ход*"], ["Анализ", "Любые варианты, *без интернета*"], ["Расстановка", "Любая позиция *вручную или по FEN*"], ["Бесплатно", "Без аккаунта, рекламы *и слежки*"]],
+    "uk": [["Stockfish 19", "*Найкращий хід* за секунди"], ["Сканування", "Наведіть на *дошку на будь-якому екрані*"], ["Перевірка", "Розпізнає фігури й *чий хід*"], ["Аналіз", "Будь-які варіанти, *без інтернету*"], ["Розстановка", "Будь-яка позиція *вручну чи з FEN*"], ["Безкоштовно", "Без акаунта, реклами *й стеження*"]],
+    "tr": [["Stockfish 19", "Saniyeler içinde *en iyi hamle*"], ["Tara", "*Her ekrandaki tahtaya* tut"], ["Kontrol", "Her taşı ve *sıranın kimde* olduğunu bilir"], ["Analiz", "Her varyantı keşfet, *çevrimdışı*"], ["Pozisyon", "Her pozisyon, *elle ya da FEN ile*"], ["Ücretsiz", "Hesap yok. Reklam yok. *Takip yok.*"]],
+    "pl": [["Stockfish 19", "*Najlepszy ruch* w kilka sekund"], ["Skanuj", "Wyceluj w *szachownicę na dowolnym ekranie*"], ["Kontrola", "Rozpoznaje bierki i *czyj jest ruch*"], ["Analiza", "Każdy wariant, *bez internetu*"], ["Ustawienie", "Dowolna pozycja *ręcznie lub z FEN*"], ["Za darmo", "Bez konta. Bez reklam. *Bez śledzenia.*"]],
+    "nl": [["Stockfish 19", "De *beste zet* in seconden"], ["Scannen", "Richt op *elk bord* op elk scherm"], ["Controle", "Herkent elk stuk en *wie aan zet* is"], ["Analyse", "Elke variant, *volledig offline*"], ["Opzetten", "Elke stelling, *met de hand of FEN*"], ["Gratis", "Geen account. *Geen advertenties.*"]],
+    "id": [["Stockfish 19", "*Langkah terbaik* dalam hitungan detik"], ["Pindai", "Arahkan ke *papan di layar mana pun*"], ["Periksa", "Mengenali setiap bidak dan *giliran*"], ["Analisis", "Jelajahi setiap variasi, *offline*"], ["Posisi", "Posisi apa pun, *manual atau FEN*"], ["Gratis", "Tanpa akun. Tanpa iklan. *Tanpa pelacakan.*"]],
+    "ja": [["Stockfish 19", "数秒で*最善手*がわかる"], ["スキャン", "画面上の|*どんな盤面*にも対応"], ["自動チェック", "駒も*手番*も自動で認識"], ["解析", "すべての変化を|*オフライン*で"], ["局面設定", "*手動配置やFEN*で|自由に"], ["無料", "アカウント不要・|*広告なし*"]],
+    "zh": [["Stockfish 19", "几秒钟找到*最佳着法*"], ["扫描", "对准*任意屏幕上的棋盘*"], ["自动核对", "识别每个棋子|和*轮到谁走*"], ["分析", "探索所有变化，|*完全离线*"], ["摆棋", "*手动摆棋*或粘贴 FEN"], ["免费", "无需账户，无广告，|*无追踪*"]]
+  },
+  "locale_language": {
+    "en-US": "en", "en-GB": "en", "en-AU": "en", "en-CA": "en", "de-DE": "de", "fr-FR": "fr", "es-ES": "es", "es-MX": "es",
+    "pt-BR": "pt", "it": "it", "ru": "ru", "uk": "uk", "tr": "tr", "pl": "pl", "nl-NL": "nl", "id": "id", "ja": "ja", "zh-Hans": "zh"
+  }
+}
