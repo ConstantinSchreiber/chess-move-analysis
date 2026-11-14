@@ -1,174 +1,86 @@
 # Publishing Best Move
 
-From this repo to a live App Store listing. Steps marked **(you)** need you at the Mac or in a
-browser. Everything else is scripted or already done.
+**Status (14 November 2026):** version 1.0 (build 263181930, git tag `v1.0`) is submitted and
+waiting for App Review. It is released automatically once approved.
 
 | | |
 |---|---|
-| App Store name | **Best Move: Chess Scanner** |
+| App Store name | **Best Move: Chess Scanner AI** |
+| Subtitle | **Stockfish Next Move Finder** |
 | Home-screen name | Best Move |
+| Apple ID (app) | 6834895609 · https://apps.apple.com/app/id6834895609 |
 | Bundle ID | `com.constantinschreiber.bestmove` |
 | SKU | `bestmove-ios` |
-| Version | 1.0 (`MARKETING_VERSION` in `ios/project.yml`) |
-| Build number | set automatically by `release.sh` (UTC `yyDDDHHMM`) |
-| Minimum iOS | 17.0, iPhone only |
+| Team | RP44S72CV4 (Constantin Schreiber, individual) |
+| Category | Utilities, secondary Education |
+| Price | Free, all 175 storefronts, new storefronts automatically |
+| Age rating | 4+ (every questionnaire answer "none") |
+| App Privacy | Data Not Collected (published) |
+| EU DSA | non-trader (account level) |
+| Support / marketing URL | https://constantinschreiber.github.io/chess-move-analysis/ |
+| Privacy policy | https://constantinschreiber.github.io/chess-move-analysis/privacy.html |
 
-## 1. One-time Mac setup (5 minutes)
+## Where the listing lives
 
-1. **(you)** Open **Xcode 27** once. Click **Agree** on the license and enter your Mac password so it
-   can install its components. When it asks which platforms to download, pick **iOS**.
-2. **(you)** Xcode → Settings → **Accounts** → **+** → Apple ID. Sign in with the Apple account
-   that holds the developer membership.
-3. Run `ios/scripts/setup-signing.sh`. It finds your Team ID, writes it into `ios/project.yml`
-   and regenerates `ios/BestMove.xcodeproj`. You can also pass the Team ID yourself; it is listed
-   at developer.apple.com/account → Membership details.
+- `docs/store/metadata.json`: name, subtitle, keywords, promotional text and description for
+  18 locales (en-US/GB/AU/CA, de, fr, es-ES/MX, pt-BR, it, ru, uk, tr, pl, nl, id, ja, zh-Hans).
+  The app itself is English; the localized descriptions say so.
+- `docs/store/captions.json` + `docs/store/raw/*.png`: the six App Store screenshots and their
+  captions in 14 languages. `node ios/scripts/store-screenshots.mjs [lang…]` renders them to
+  `docs/store/screenshots/<lang>/` (1320 × 2868, gitignored).
+- Raw screenshots come from the simulator with the debug launch arguments
+  (`ios/scripts/screenshots.sh`, plus `-demoCamera sample-photo -demoCameraCenterX 0.333` for the
+  camera shot and `-demoAnalysis "4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 1 16"` for
+  the hero, Morphy's Opera Game).
 
-## 2. Run it on your iPhone
+### Search optimization notes
 
-1. Connect the iPhone with a cable and tap **Trust** on the phone.
-2. On the iPhone, turn on Settings → Privacy & Security → **Developer Mode**. It only appears
-   after the phone has been connected to Xcode, and the phone restarts to turn it on.
-3. Open `ios/BestMove.xcodeproj`, choose your iPhone in the device menu at the top and press
-   **Run** (⌘R). The first build takes a few minutes because Stockfish is compiled.
+- The name and subtitle carry the strongest search weight: "chess scanner", "AI", "Stockfish",
+  "next move", "best move", "finder". The keyword field adds analyzer, analysis, engine, solver,
+  bot, helper, camera, photo, screenshot, position, board, fen, puzzle, tactics. Words in the
+  name or subtitle are not repeated there.
+- Other apps' names (Next Chess Move, Chessify, Chessvision…) must not be used anywhere in the
+  metadata: guideline 2.3.7, rejection. The generic phrase "next chess move" is covered by
+  "Chess" + "Next Move".
+- Every locale has its own keywords in its language, so people searching in German, Spanish,
+  Russian… find the app too.
 
-Or, without opening Xcode, run `ios/scripts/run-device.sh`. It builds a Release build (the engine is
-faster than in Debug), installs it on the connected iPhone and launches it.
+## Releasing an update
 
-Running on the phone once registers it with your developer account. After the first time it also
-works over Wi‑Fi.
+1. Change the code, bump `MARKETING_VERSION` in `ios/project.yml` (e.g. 1.1), `xcodegen generate`
+   in `ios/`.
+2. `ios/scripts/release.sh` archives and uploads (Xcode account; no API key needed).
+3. In App Store Connect: **+** new version → pick the build → "What's New" → Add for Review → Submit.
+4. Tag the commit: `git tag -a v1.1 -m "…" && git push origin v1.1` (GPL: the source of every
+   App Store build must be findable).
 
-## 3. Create the app in App Store Connect (5 minutes)
+Changing listing text or screenshots does not need a new build while a version is being
+prepared; promotional text can be changed any time.
 
-**(you)** Go to [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → Apps → **+** →
-New App:
+## One-time setup (done)
 
-- Platforms: **iOS**
-- Name: **Best Move: Chess Scanner**
-- Primary language: **English (U.S.)**
-- Bundle ID: **com.constantinschreiber.bestmove**. It is already registered with your team
-  (`release.sh --export` did that on 12 November 2026), so it is in the list.
-- SKU: **bestmove-ios**
-- User access: Full access
+- Xcode 27 signed in with the developer Apple ID; `ios/scripts/setup-signing.sh` wrote the team.
+- iPhone registered for development; `ios/scripts/run-device.sh` builds, installs and launches
+  a Release build on the connected phone.
+- App record, listing, screenshots, age rating, App Privacy, pricing and availability, review
+  contact and notes were filled in through App Store Connect.
+- `ios/scripts/publish-source.sh` made the repo public and turned on GitHub Pages for `docs/`.
 
-## 4. Upload a build
+## App Review information
 
-```sh
-ios/scripts/release.sh
-```
-
-This archives a Release build and uploads it with your Xcode account. After 10–30 minutes of
-processing it appears under **TestFlight**. Add yourself as an internal tester to install it
-through the TestFlight app. `release.sh --export` only produces a signed `.ipa` and does not upload.
-
-## 5. Publish the source and the support pages
-
-```sh
-ios/scripts/publish-source.sh
-```
-
-This makes the GitHub repo public and turns on GitHub Pages for `docs/`, which hosts:
-
-- Support URL: https://constantinschreiber.github.io/chess-move-analysis/
-- Privacy policy URL: https://constantinschreiber.github.io/chess-move-analysis/privacy.html
-
-Why public: Stockfish is GPLv3, so the app's complete source code has to be available to everyone
-who downloads it. The lichess app and other Stockfish-based apps on the App Store work the same way.
-The repo carries the GPLv3 `LICENSE`, and the app's Settings → Licenses screen links to the source.
-The repo history has been checked: no secrets and no personal files. The only email address in
-it is your commit email, which your other public repos already show.
-
-## 6. Fill in the listing
-
-App Store Connect → your app → **App Store** tab → iOS App 1.0.
-
-**Screenshots (6.9" display):** upload `docs/screenshots/1-home.png` … `5-settings.png`
-(1320 × 2868). Apple scales them down for smaller iPhones.
-
-**Promotional text** (can be changed at any time, ≤170):
-
-> Point your camera at a chess board on any screen, or import a screenshot, and see the best move in seconds. Stockfish runs right on your iPhone, fully offline.
-
-**Description:**
-
-```
-Stuck on a position? Point your camera at a chess board on your computer, tablet or TV, or import a screenshot. Best Move reads the position, works out whose turn it is, and shows you the strongest move in seconds.
-
-SCAN
-• The live camera finds the board and outlines it for you
-• Import screenshots from Photos or paste an image
-• Works with chess websites and apps on any screen
-
-CONFIRM
-• Reads every piece and works out whose move it is from the last-move highlight or a check
-• Squares it isn't sure about are outlined, so you know what to double-check
-• Compare with your photo and fix any piece with a tap
-• Set castling rights, set up a position by hand or paste a FEN
-
-ANALYZE
-• Stockfish 19, one of the strongest chess engines in the world, runs right on your iPhone
-• Best-move arrow, evaluation bar and up to five engine lines
-• A plain-English summary of the best move
-• Drag pieces to try your own ideas, and the engine follows every move
-• Explore variations with a branching move list, step back and forward, flip the board
-
-PRIVATE AND OFFLINE
-• No account, no ads, no tracking
-• Photos never leave your phone
-• Works without an internet connection
-
-OPEN SOURCE
-Best Move is free software under the GNU General Public License v3. The source code is on GitHub.
-```
-
-**Keywords** (≤100, the words in the name and subtitle are indexed already):
-
-```
-analysis,analyzer,engine,position,camera,screenshot,photo,fen,tactics,puzzle,checkmate,solver,coach
-```
-
-- **Support URL:** https://constantinschreiber.github.io/chess-move-analysis/
-- **Marketing URL:** leave empty, or use the support URL
-- **Version / Copyright:** 1.0 / `2026 Constantin Schreiber`
-- **Build:** pick the uploaded build. The encryption question is already answered in Info.plist.
-
-**App Review information:**
-
-- Sign-in required: **No**
-- Contact: your name, phone and email. Apple sees these; they are not public.
+- Sign-in required: no. Contact: the same as for the account's other app.
 - Notes:
 
 ```
-No account is needed. To try the app without a chess board: tap "Scan position", then "Try a sample", pick one of the two samples and tap "Analyze". Best Move reads chess boards shown on screens (chess websites and apps) from the camera, Photos or a pasted image. The Stockfish engine runs on the device; the app makes no network requests (the menu item "Open on lichess.org" opens Safari). The app is open source under GPLv3: https://github.com/ConstantinSchreiber/chess-move-analysis
+No account is needed. To try the app without a chess board: tap "Scan position", then "Try a sample", pick one of the two samples and tap "Analyze". Best Move reads chess boards shown on screens (chess websites and apps) from the camera, Photos or a pasted image, and the Stockfish chess engine (GPLv3) runs on the device. The app makes no network requests of its own; the menu item "Open on lichess.org" opens Safari. Source code: https://github.com/ConstantinSchreiber/chess-move-analysis
 ```
-
-## 7. App-level settings
-
-- **App Information** → Subtitle: **Scan any board. Get the move.**
-- **App Information** → Category: Primary **Games**, subcategories **Board** and **Strategy**.
-  Most chess scanners and analysis apps are listed there. Secondary category: **Education**.
-- **App Information** → Age rating: answer **No / None** to everything (there is no web view,
-  no user content and no purchases). The result is the lowest rating, 4+.
-- **App Information** → Digital Services Act (EU): declare **not a trader**. That fits if the app
-  is free and you don't earn money from it. Without this declaration the app is not shown in EU
-  storefronts.
-- **App Privacy** → Privacy Policy URL (above) → Data collection: **No, we do not collect data
-  from this app**.
-- **Pricing and Availability** → Price: **Free** → all countries and regions.
-
-Then go back to the version page → **Add for Review** → **Submit**. Review usually takes 1–2 days.
-
-## Later releases
-
-1. Bump `MARKETING_VERSION` in `ios/project.yml` (e.g. 1.1) and run `xcodegen generate` in `ios/`.
-2. `ios/scripts/release.sh`
-3. App Store Connect → **+** new version → pick the build → What's New → Submit.
 
 ## Review risks
 
-- **Minimum functionality (4.2):** not an issue. The app does camera recognition and on-device
-  engine analysis.
-- **Camera permission text:** it explains the purpose.
-- **App size:** about 120 MB, mostly the Stockfish network. That is under the 200 MB limit for
-  downloading over mobile data without asking.
-- **GPL:** keep the repo public. Tag every release (`git tag v1.0`) so the exact source of each
-  App Store build is easy to find.
+- **Minimum functionality (4.2):** not an issue. Camera recognition and on-device engine analysis.
+- **Fair play:** the description asks people not to use it in games against others.
+- **"Stockfish" in the subtitle:** factual (the app ships Stockfish under its GPL licence) and
+  common on the store. If a reviewer objects, change the subtitle to "Chess Engine Next Move Finder".
+- **App size:** about 100 MB download, mostly the Stockfish network; under the 200 MB
+  cellular-download limit.
+- **GPL:** keep the repo public and tag every release.
