@@ -8,12 +8,18 @@ struct CameraScannerView: View {
 
     @State private var camera = CameraController()
 
+    #if DEBUG
+    /// Screenshot mode (`-demoCamera`): a still photo stands in for the camera feed.
+    static var demoImage: UIImage?
+    #endif
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            CameraPreview(session: camera.session)
-                .ignoresSafeArea()
+            // The outline must span the same full-screen frame as the feed, safe areas included.
+            feed
                 .overlay { BoardOutline(quad: camera.quad, frameAspect: camera.frameAspect) }
+                .ignoresSafeArea()
                 .opacity(camera.isRunning ? 1 : 0)
                 .animation(.easeOut(duration: 0.3), value: camera.isRunning)
 
@@ -73,8 +79,27 @@ struct CameraScannerView: View {
             }
         }
         .statusBarHidden()
-        .task { await camera.start() }
+        .task {
+            #if DEBUG
+            if let demo = Self.demoImage { await camera.showStill(demo); return }
+            #endif
+            await camera.start()
+        }
         .onDisappear { camera.stop() }
+    }
+
+    @ViewBuilder
+    private var feed: some View {
+        #if DEBUG
+        if let demo = Self.demoImage {
+            // Aspect-fill like the camera preview, so the outline maps the same way.
+            Color.black.overlay { Image(uiImage: demo).resizable().scaledToFill() }.clipped()
+        } else {
+            CameraPreview(session: camera.session)
+        }
+        #else
+        CameraPreview(session: camera.session)
+        #endif
     }
 
     private var hint: String {
@@ -112,6 +137,7 @@ private struct BoardOutline: View {
                 .transition(.opacity)
             }
         }
+        .ignoresSafeArea()
         .animation(.easeOut(duration: 0.12), value: quad)
         .allowsHitTesting(false)
     }
@@ -182,6 +208,19 @@ final class CameraController: NSObject, @unchecked Sendable {
         isRunning = started
         hasTorch = device?.hasTorch ?? false
     }
+
+    #if DEBUG
+    /// Shows a still image as the feed, outlined with the full (exact) corner detection.
+    @MainActor
+    func showStill(_ image: UIImage) async {
+        let result = try? await BoardRecognizer.shared.recognize(image)
+        let size = result?.image.cgImage.map { CGSize(width: $0.width, height: $0.height) } ?? image.size
+        authorization = .authorized
+        frameAspect = size.width / size.height
+        quad = result?.corners.map { CGPoint(x: $0.x / size.width, y: $0.y / size.height) }
+        isRunning = true
+    }
+    #endif
 
     func stop() {
         sessionQueue.async {

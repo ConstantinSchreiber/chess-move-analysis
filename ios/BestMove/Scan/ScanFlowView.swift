@@ -52,6 +52,10 @@ struct ScanFlowView: View {
                 app.pendingDemoReview = nil
                 path.append(ScanReview(result: review))
             }
+            if app.pendingDemoCamera {
+                app.pendingDemoCamera = false
+                showCamera = true
+            }
             #endif
         }
         .onReceive(NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)) { _ in
