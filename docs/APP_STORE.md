@@ -1,7 +1,12 @@
 # Publishing Best Move
 
-**Status (14 November 2026):** version 1.0 (build 263181930, git tag `v1.0`) is submitted and
-waiting for App Review. It is released automatically once approved.
+**Status (16 November 2026):** version 1.0 (build 263181930, git tag `v1.0`) was submitted on
+14 November. On 15 November App Review answered with **Guideline 2.1 – Information Needed** (not
+a rejection of the app itself): they want a screen recording from a physical device, starting at
+app launch, plus answers about purpose, usage, external services, regional differences and
+third-party material. The answers are in `docs/store/review-notes.txt`; they go in the Notes field,
+the recording goes in App Review Information → Attachment, then the version is resubmitted.
+It is released automatically once approved.
 
 | | |
 |---|---|

@@ -1,0 +1,24 @@
+1. SCREEN RECORDING
+Attached to this submission (App Review Information > Attachment). Recorded on an iPhone 14 Pro Max, starting with launching the app. The app has no accounts, no user-generated content and no paid content.
+
+2. PURPOSE AND TARGET AUDIENCE
+Best Move is a chess study tool for chess players of all levels: club players, beginners and anyone solving chess puzzles. When people study a game or a puzzle on a chess website, in another app, on TV or in a video, they often want to know the best move in exactly that position. Until now they had to rebuild the position piece by piece on an analysis board, which takes minutes and is error-prone. Best Move reads the position from the camera or a screenshot in a few seconds, works out whose move it is, and the Stockfish chess engine shows the best move and the main lines. Players can then move pieces to explore other ideas. The app is meant for study and puzzles; the description asks people not to use it in games against others.
+
+3. HOW TO USE THE MAIN FEATURES (no login, credentials or purchase needed)
+- Scan: tap "Scan position" and point the camera at a chess board shown on any screen, then tap the shutter. Alternatively choose "Photos" to pick a screenshot or "Paste image".
+- Review: the recognized position appears; correct any piece if needed, check the side to move, then tap "Analyze".
+- Analysis: the best move is shown as an arrow, with the evaluation and the engine lines. Tap a line to step through it, or drag pieces on the board to explore other moves; the engine re-analyzes instantly.
+- Without a chess board nearby: tap "Scan position", then "Try a sample", pick one of the samples and tap "Analyze".
+- "Set up position" places pieces by hand or from a pasted FEN.
+
+4. EXTERNAL SERVICES
+None. The app uses no servers, accounts, analytics, advertising, payment processors or cloud AI services, and it works fully offline. Board recognition runs on the device with two Core ML models bundled in the app. The analysis uses the open-source Stockfish chess engine, compiled into the app and running on the device. The only link out is the optional menu item "Open on lichess.org", which opens the position on that public website in Safari.
+
+5. REGIONAL DIFFERENCES
+None. The app works identically in every region. The interface is in English everywhere.
+
+6. THIRD-PARTY MATERIAL AND REGULATION
+The app does not operate in a regulated industry. All third-party material is open source and used under its licence:
+- Stockfish chess engine: GNU GPL v3.
+- Chess piece graphics: the open-source sets by Colin M.L. Burnett (GPLv2+), Armando Hernandez Marroquin (GPLv2+) and Alexis Luengas (Apache 2.0).
+Best Move complies with these licences: the app itself is released under GPLv3, every licence and credit is shown in Settings > Licenses & acknowledgements, and the complete source code is public at https://github.com/ConstantinSchreiber/chess-move-analysis. The recognition models were trained by us; the app icon and design are our own. "Stockfish" is named in the listing only to say which open-source engine the app contains.
