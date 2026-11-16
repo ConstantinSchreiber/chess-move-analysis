@@ -59,12 +59,25 @@ with `resolved: true`, then PATCH the `reviewSubmissions` entry with `submitted:
 1. Change the code, bump `MARKETING_VERSION` in `ios/project.yml` (e.g. 1.1), `xcodegen generate`
    in `ios/`.
 2. `ios/scripts/release.sh` archives and uploads (Xcode account; no API key needed).
-3. In App Store Connect: **+** new version → pick the build → "What's New" → Add for Review → Submit.
-4. Tag the commit: `git tag -a v1.1 -m "…" && git push origin v1.1` (GPL: the source of every
+3. Add a `whats_new` text per locale to `docs/store/metadata.json` (locales with `same_as` copy it).
+4. App Store Connect, either in the web UI (**+** new version → build → What's New → Add for
+   Review → Submit) or with `ios/scripts/asc.cjs`:
+   ```
+   node ios/scripts/asc.cjs browser          # once per login; log in in that Chrome window
+   node ios/scripts/asc.cjs new-version 1.1
+   node ios/scripts/asc.cjs build            # after the upload has finished processing
+   node ios/scripts/asc.cjs metadata         # texts incl. What's New
+   node ios/scripts/asc.cjs screenshots      # only if the screenshots changed
+   node ios/scripts/asc.cjs submit
+   node ios/scripts/asc.cjs status
+   ```
+5. Tag the commit: `git tag -a v1.1 -m "…" && git push origin v1.1` (GPL: the source of every
    App Store build must be findable).
 
 Changing listing text or screenshots does not need a new build while a version is being
-prepared; promotional text can be changed any time.
+prepared; promotional text can be changed any time. If App Review asks for information, update
+`docs/store/review-notes.txt`, then `asc.cjs review-notes [recording.mov]` and `asc.cjs submit`.
+App Review emails go to the account's Apple ID mail address.
 
 ## One-time setup (done)
 
