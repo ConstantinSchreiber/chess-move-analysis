@@ -4,9 +4,13 @@
 14 November. On 15 November App Review answered with **Guideline 2.1 – Information Needed** (not
 a rejection of the app itself): they want a screen recording from a physical device, starting at
 app launch, plus answers about purpose, usage, external services, regional differences and
-third-party material. The answers are in `docs/store/review-notes.txt`; they go in the Notes field,
-the recording goes in App Review Information → Attachment, then the version is resubmitted.
-It is released automatically once approved.
+third-party material. On 16 November the answers (`docs/store/review-notes.txt`) went into the
+Notes field, a 20-second recording from the iPhone (camera background blurred: a password manager
+was visible) into App Review Information → Attachment, and the version was **resubmitted: waiting
+for review**. It is released automatically once approved.
+
+Resubmitting through the API after "unresolved issues": PATCH the `reviewSubmissionItems` entry
+with `resolved: true`, then PATCH the `reviewSubmissions` entry with `submitted: true`.
 
 | | |
 |---|---|
