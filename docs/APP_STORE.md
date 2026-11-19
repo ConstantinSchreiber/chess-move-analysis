@@ -1,7 +1,9 @@
 # Publishing Best Move
 
-**Status (16 November 2026):** version 1.0 (build 263181930, git tag `v1.0`) was submitted on
-14 November. On 15 November App Review answered with **Guideline 2.1 – Information Needed** (not
+**Status (18 November 2026): LIVE.** Version 1.0 was approved on 18 November (18:05 CET) and is
+on the App Store worldwide: https://apps.apple.com/us/app/best-move-chess-scanner-ai/id6834895609
+
+History: version 1.0 (build 263181930, git tag `v1.0`) was submitted on 14 November. On 15 November App Review answered with **Guideline 2.1 – Information Needed** (not
 a rejection of the app itself): they want a screen recording from a physical device, starting at
 app launch, plus answers about purpose, usage, external services, regional differences and
 third-party material. On 16 November the answers (`docs/store/review-notes.txt`) went into the
