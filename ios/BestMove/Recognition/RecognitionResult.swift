@@ -34,9 +34,9 @@ enum RecognitionError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .unreadableImage: "That image couldn't be read."
-        case .modelUnavailable: "The board recogniser isn't available in this build."
-        case .noBoardFound: "No chess board found. Make sure all four corners of the board are visible."
+        case .unreadableImage: String(localized: "That image couldn't be read.")
+        case .modelUnavailable: String(localized: "The board recogniser isn't available in this build.")
+        case .noBoardFound: String(localized: "No chess board found. Make sure all four corners of the board are visible.")
         }
     }
 }

@@ -50,7 +50,8 @@ extension Font {
 
 extension View {
     func eyebrowStyle(_ color: Color = Palette.textTertiary) -> some View {
-        font(.eyebrow).tracking(1.6).textCase(.uppercase).foregroundStyle(color)
+        // No letter spacing for right-to-left scripts: it would break Arabic's joined letters apart.
+        font(.eyebrow).tracking(isRightToLeft ? 0 : 1.6).textCase(.uppercase).foregroundStyle(color)
     }
 
     /// Standard card container: raised surface with a hairline stroke.
@@ -73,3 +74,7 @@ enum Haptics {
     static func success() { if isEnabled { notification.notificationOccurred(.success) } }
     static func warning() { if isEnabled { notification.notificationOccurred(.warning) } }
 }
+
+/// The app's language is written right to left (Arabic). Boards, move lists and move navigation stay
+/// left to right regardless; chess notation reads that way everywhere.
+let isRightToLeft = Locale.current.language.characterDirection == .rightToLeft

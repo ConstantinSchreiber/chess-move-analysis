@@ -13,6 +13,7 @@ enum AppRoute: Hashable {
 final class AppModel {
     let settings = AppSettings()
     let history = HistoryStore()
+    let reviewPrompter = ReviewPrompter()
     var path: [AppRoute] = []
     var isScanPresented = false
     var isSettingsPresented = false
@@ -53,7 +54,8 @@ final class AppModel {
 
     #if DEBUG
     /// Launch arguments for screenshots and manual testing:
-    /// `-demoScan sample-photo`, `-demoCamera sample-photo [-demoCameraCenterX 0.33]`, `-demoScanSheet`, `-demoReview`, `-demoAnalysis <FEN>`, `-demoSetup`, `-demoSettings`.
+    /// `-demoScan sample-photo`, `-demoCamera sample-photo [-demoCameraCenterX 0.33]`, `-demoScanSheet`, `-demoReview`, `-demoAnalysis <FEN>`, `-demoSetup`, `-demoSettings`,
+    /// `-demoCleanScan <FEN> -reviewPromptTest` (rating prompt; demo runs never prompt otherwise).
     func applyDebugLaunchArguments() {
         let args = ProcessInfo.processInfo.arguments
         func value(after flag: String) -> String? {
@@ -64,6 +66,9 @@ final class AppModel {
             scan(image)
         } else if let fen = value(after: "-demoAnalysis"), let position = try? Position(fen: fen) {
             analyze(position: position, orientation: position.sideToMove, source: .board)
+        } else if let fen = value(after: "-demoCleanScan"), let position = try? Position(fen: fen) {
+            // As if a scan had been recognised without corrections (rating-prompt testing with -reviewPromptTest).
+            analyze(position: position, orientation: position.sideToMove, source: .scan, cleanScan: true)
         } else if args.contains("-demoReview"), let review = Self.demoReview() {
             pendingDemoReview = review
             startScan()
@@ -114,10 +119,11 @@ final class AppModel {
         setupRequest = SetupRequest(position: position, orientation: orientation)
     }
 
-    func analyze(position: Position, orientation: PieceColor, source: HistoryEntry.Source) {
+    /// `cleanScan`: a scan of the person's own board, recognised without corrections (a rating moment).
+    func analyze(position: Position, orientation: PieceColor, source: HistoryEntry.Source, cleanScan: Bool = false) {
         let historyID = history.record(position: position, orientation: orientation, source: source)
         let model = AnalysisModel(position: position, orientation: orientation, settings: settings,
-                                  history: history, historyID: historyID)
+                                  history: history, historyID: historyID, isCleanScan: cleanScan)
         isScanPresented = false
         setupRequest = nil
         path.append(.analysis(model))

@@ -82,6 +82,14 @@ struct SettingsView: View {
 
                     section("About") {
                         VStack(spacing: 0) {
+                            Link(destination: AppStoreLinks.writeReview) {
+                                linkRow("Rate Best Move", icon: "star")
+                            }
+                            Divider().overlay(Palette.stroke)
+                            ShareLink(item: AppStoreLinks.app, message: Text("Best Move finds the best chess move from a photo of any board.")) {
+                                linkRow("Share Best Move", icon: "square.and.arrow.up")
+                            }
+                            Divider().overlay(Palette.stroke)
                             NavigationLink { LicensesView() } label: {
                                 linkRow("Licenses & acknowledgements", icon: "doc.text")
                             }
@@ -107,14 +115,14 @@ struct SettingsView: View {
         .presentationCornerRadius(32)
     }
 
-    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func section<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title).eyebrowStyle()
             content()
         }
     }
 
-    private func stepperRow(_ title: String, value: Binding<Int>, range: ClosedRange<Int>, step: Int = 1, caption: String) -> some View {
+    private func stepperRow(_ title: LocalizedStringKey, value: Binding<Int>, range: ClosedRange<Int>, step: Int = 1, caption: LocalizedStringKey) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.system(size: 16, weight: .medium)).foregroundStyle(Palette.textPrimary)
@@ -131,7 +139,7 @@ struct SettingsView: View {
         .padding(.vertical, 12)
     }
 
-    private func toggleRow(_ title: String, isOn: Binding<Bool>) -> some View {
+    private func toggleRow(_ title: LocalizedStringKey, isOn: Binding<Bool>) -> some View {
         Toggle(isOn: isOn) {
             Text(title).font(.system(size: 16, weight: .medium)).foregroundStyle(Palette.textPrimary)
         }
@@ -140,7 +148,7 @@ struct SettingsView: View {
         .padding(.vertical, 12)
     }
 
-    private func linkRow(_ title: String, icon: String) -> some View {
+    private func linkRow(_ title: LocalizedStringKey, icon: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon).foregroundStyle(Palette.gold).frame(width: 22)
             Text(title).font(.system(size: 16, weight: .medium)).foregroundStyle(Palette.textPrimary)
@@ -165,7 +173,7 @@ struct LicensesView: View {
                 Text("Licenses").font(.display(30)).foregroundStyle(Palette.textPrimary)
                 block("Best Move", "Best Move is free software, released under the GNU General Public License v3. Its complete source code is available at github.com/ConstantinSchreiber/chess-move-analysis.")
                 block("Stockfish 19", "Copyright © the Stockfish developers (see AUTHORS). Licensed under the GNU General Public License v3. stockfishchess.org — github.com/official-stockfish/Stockfish")
-                block("Piece sets", PieceSet.allCases.map { "\($0.name): \($0.credit)" }.joined(separator: "\n"))
+                block("Piece sets", LocalizedStringKey(PieceSet.allCases.map { "\($0.name): \($0.credit)" }.joined(separator: "\n")))
                 block("Board recognition", "Neural networks trained for Best Move on synthetic boards rendered from openly licensed piece sets and positions from the lichess.org open database (CC0).")
             }
             .padding(20)
@@ -174,7 +182,7 @@ struct LicensesView: View {
         .toolbar(.hidden, for: .navigationBar)
     }
 
-    private func block(_ title: String, _ body: String) -> some View {
+    private func block(_ title: LocalizedStringKey, _ body: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title).font(.system(size: 16, weight: .semibold)).foregroundStyle(Palette.textPrimary)
             Text(body).font(.system(size: 14)).foregroundStyle(Palette.textSecondary)
@@ -182,6 +190,12 @@ struct LicensesView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .card(padding: 16, radius: 18)
     }
+}
+
+enum AppStoreLinks {
+    static let app = URL(string: "https://apps.apple.com/app/id6834895609")!
+    /// Opens the App Store's "Write a Review" page (Apple's sanctioned link for a user-initiated rating).
+    static let writeReview = URL(string: "https://apps.apple.com/app/id6834895609?action=write-review")!
 }
 
 extension Bundle {

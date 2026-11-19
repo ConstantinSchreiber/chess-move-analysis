@@ -1,7 +1,14 @@
 # Publishing Best Move
 
-**Status (18 November 2026): LIVE.** Version 1.0 was approved on 18 November (18:05 CET) and is
-on the App Store worldwide: https://apps.apple.com/us/app/best-move-chess-scanner-ai/id6834895609
+**Status (19 November 2026): 1.0 LIVE, 1.1 waiting for review.** Version 1.0 was approved on
+18 November (18:05 CET) and is on the App Store worldwide:
+https://apps.apple.com/us/app/best-move-chess-scanner-ai/id6834895609
+
+Version 1.1 (build 263232130, git tag `v1.1`) was submitted on 19 November: iPad support, the
+interface in 15 languages, the analysis shared as an image, the system rating prompt after the
+second clean scan (`ReviewPrompter`), and an Arabic (ar-SA) listing; iPhone and iPad screenshots
+in every listing language. Released automatically once approved. After approval: update
+`docs/index.html` ("for iPhone" → "for iPhone and iPad").
 
 History: version 1.0 (build 263181930, git tag `v1.0`) was submitted on 14 November. On 15 November App Review answered with **Guideline 2.1 – Information Needed** (not
 a rejection of the app itself): they want a screen recording from a physical device, starting at
@@ -33,16 +40,34 @@ with `resolved: true`, then PATCH the `reviewSubmissions` entry with `submitted:
 
 ## Where the listing lives
 
-- `docs/store/metadata.json`: name, subtitle, keywords, promotional text and description for
-  18 locales (en-US/GB/AU/CA, de, fr, es-ES/MX, pt-BR, it, ru, uk, tr, pl, nl, id, ja, zh-Hans).
-  The app itself is English; the localized descriptions say so.
-- `docs/store/captions.json` + `docs/store/raw/*.png`: the six App Store screenshots and their
-  captions in 14 languages. `node ios/scripts/store-screenshots.mjs [lang…]` renders them to
-  `docs/store/screenshots/<lang>/` (1320 × 2868, gitignored).
-- Raw screenshots come from the simulator with the debug launch arguments
-  (`ios/scripts/screenshots.sh`, plus `-demoCamera sample-photo -demoCameraCenterX 0.333` for the
-  camera shot and `-demoAnalysis "4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 1 16"` for
-  the hero, Morphy's Opera Game).
+- `docs/store/metadata.json`: name, subtitle, keywords, promotional text, description and
+  "What's New" (`whats_new`) for 19 locales (en-US/GB/AU/CA, de, fr, es-ES/MX, pt-BR, it, ru, uk,
+  tr, pl, nl, id, ja, zh-Hans, ar-SA).
+- Screenshots, iPhone 6.9" and iPad 13", six per language, showing the app in that language:
+  1. `ios/scripts/store-raw.sh [iphone|ipad|both] [lang…]` captures the raw screens in the
+     simulators (debug launch arguments, `-AppleLanguages`) into `docs/store/raw/<device>/<lang>/`
+     (~20 min per device; `SHOTS="hero analysis"` retakes only those screens).
+  2. `node ios/scripts/store-screenshots.mjs --device both [lang…]` adds the captions from
+     `docs/store/captions.json` (15 languages, Arabic right to left) and writes
+     `docs/store/screenshots/<lang>/` (1320 × 2868) and `docs/store/screenshots-ipad/<lang>/`
+     (2064 × 2752). All three folders are gitignored (reproducible, ~250 MB).
+  3. `node ios/scripts/asc.cjs screenshots both` uploads them.
+
+## App languages
+
+The interface is translated into 15 languages (en, de, fr, es, pt-BR, it, ru, uk, tr, pl, nl, id,
+ja, zh-Hans, ar) with a String Catalog, `ios/BestMove/Resources/Localizable.xcstrings`
+(+ `InfoPlist.xcstrings` for the camera prompt). New texts: write them as `Text("…")` /
+`String(localized:)`, build, then sync the catalog and add translations:
+
+```
+xcrun xcstringstool sync ios/BestMove/Resources/Localizable.xcstrings --stringsdata <each *.stringsdata in the build>
+ios/scripts/merge-translations.py <dir with out-<lang>.json files>   # checks placeholders
+```
+
+Chess wording is in `ios/BestMove/App/Localized.swift`, as whole phrases ("White queen",
+"Captures the knight on %@") so gendered languages translate correctly. Boards, engine lines and
+move navigation stay left to right in Arabic; SAN, FEN and square names are never translated.
 
 ### Search optimization notes
 
@@ -69,7 +94,8 @@ with `resolved: true`, then PATCH the `reviewSubmissions` entry with `submitted:
    node ios/scripts/asc.cjs new-version 1.1
    node ios/scripts/asc.cjs build            # after the upload has finished processing
    node ios/scripts/asc.cjs metadata         # texts incl. What's New
-   node ios/scripts/asc.cjs screenshots      # only if the screenshots changed
+   node ios/scripts/asc.cjs screenshots both # only if the screenshots changed
+   node ios/scripts/asc.cjs review-notes docs/…/recording.mov   # notes; copies the contact to the new version
    node ios/scripts/asc.cjs submit
    node ios/scripts/asc.cjs status
    ```

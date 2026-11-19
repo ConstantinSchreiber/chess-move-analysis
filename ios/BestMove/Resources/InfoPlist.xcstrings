@@ -1,0 +1,102 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "NSCameraUsageDescription": {
+      "comment": "Privacy - Camera Usage Description",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يستخدم Best Move الكاميرا لتصوير رقعة الشطرنج حتى يتمكن من قراءة الوضعية. تبقى الصور على جهازك."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move verwendet die Kamera, um ein Schachbrett zu fotografieren und die Stellung zu erkennen. Fotos bleiben auf deinem Gerät."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move uses the camera to photograph a chess board so it can read the position. Photos stay on your device."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move usa la cámara para fotografiar un tablero de ajedrez y así leer la posición. Las fotos se quedan en tu dispositivo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move utilise l’appareil photo pour photographier un échiquier afin d’en lire la position. Les photos restent sur votre appareil."
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move menggunakan kamera untuk memotret papan catur agar dapat membaca posisinya. Foto tetap berada di perangkat Anda."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move usa la fotocamera per fotografare una scacchiera e leggerne la posizione. Le foto restano sul tuo dispositivo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Moveは、チェス盤を撮影して局面を読み取るためにカメラを使用します。写真がデバイスの外に送信されることはありません。"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move gebruikt de camera om een schaakbord te fotograferen, zodat de stelling kan worden herkend. Foto's blijven op je apparaat."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move używa aparatu, aby sfotografować szachownicę i odczytać pozycję. Zdjęcia pozostają na urządzeniu."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Best Move usa a câmera para fotografar um tabuleiro de xadrez e ler a posição. As fotos ficam no seu dispositivo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move использует камеру, чтобы сфотографировать шахматную доску и распознать позицию. Фото остаются на вашем устройстве."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move, pozisyonu okuyabilmek için satranç tahtasının fotoğrafını çekerken kamerayı kullanır. Fotoğraflar aygıtınızda kalır."
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move використовує камеру, щоб сфотографувати шахову дошку й розпізнати позицію. Фото залишаються на вашому пристрої."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Move 使用相机拍摄棋盘，以便识别局面。照片仅保留在你的设备上。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

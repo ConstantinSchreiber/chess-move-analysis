@@ -125,17 +125,17 @@ struct PiecePalette: View {
                 HStack(spacing: 6) {
                     ForEach([PieceKind.king, .queen, .rook, .bishop, .knight, .pawn], id: \.self) { kind in
                         let piece = Piece(color, kind)
-                        toolButton(.piece(piece), label: piece.description) {
+                        toolButton(.piece(piece), label: piece.localizedName) {
                             Image(pieceSet.imageName(piece)).resizable().scaledToFit().padding(4)
                         }
                     }
                 }
             }
             HStack(spacing: 6) {
-                toolButton(.hand, label: "Move pieces") {
+                toolButton(.hand, label: String(localized: "Move pieces")) {
                     Image(systemName: "hand.point.up.left").font(.system(size: 18, weight: .medium))
                 }
-                toolButton(.eraser, label: "Erase") {
+                toolButton(.eraser, label: String(localized: "Erase")) {
                     Image(systemName: "eraser").font(.system(size: 18, weight: .medium))
                 }
                 actionButton("arrow.triangle.2.circlepath", "Swap sides") { withAnimation { editor.swapSides() } }
@@ -166,7 +166,7 @@ struct PiecePalette: View {
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    private func actionButton(_ icon: String, _ label: String, action: @escaping () -> Void) -> some View {
+    private func actionButton(_ icon: String, _ label: LocalizedStringKey, action: @escaping () -> Void) -> some View {
         Button {
             Haptics.tap()
             action()
@@ -206,7 +206,7 @@ struct PositionSettingsSection: View {
                             .filter { possible.contains($0.right) }
                         if !rights.isEmpty {
                             HStack(spacing: 8) {
-                                Text(color.name)
+                                Text(color.localizedName)
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundStyle(Palette.textSecondary)
                                     .frame(width: 56, alignment: .leading)
@@ -223,7 +223,7 @@ struct PositionSettingsSection: View {
             if !issues.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(issues, id: \.self) { issue in
-                        Label(issue.description, systemImage: "exclamationmark.octagon.fill")
+                        Label(issue.localizedDescription, systemImage: "exclamationmark.octagon.fill")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(Palette.danger)
                     }
@@ -237,14 +237,14 @@ struct PositionSettingsSection: View {
 
 /// Manual setup / edit sheet.
 struct PositionEditorSheet: View {
-    let title: String
+    let title: LocalizedStringKey
     let onDone: (Position, PieceColor) -> Void
     @State private var editor: PositionEditorModel
     @State private var fenText = ""
     @State private var fenError = false
     @Environment(\.dismiss) private var dismiss
 
-    init(initial: Position, orientation: PieceColor, title: String, onDone: @escaping (Position, PieceColor) -> Void) {
+    init(initial: Position, orientation: PieceColor, title: LocalizedStringKey, onDone: @escaping (Position, PieceColor) -> Void) {
         self.title = title
         self.onDone = onDone
         _editor = State(initialValue: PositionEditorModel(position: initial, orientation: orientation))
@@ -283,6 +283,7 @@ struct PositionEditorSheet: View {
         .presentationBackground(Palette.background)
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(32)
+        .largeSheetOnPad()
     }
 
     private var fenField: some View {

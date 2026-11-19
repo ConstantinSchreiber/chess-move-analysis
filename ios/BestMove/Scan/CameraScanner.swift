@@ -95,14 +95,14 @@ struct CameraScannerView: View {
             // Aspect-fill like the camera preview, so the outline maps the same way.
             Color.black.overlay { Image(uiImage: demo).resizable().scaledToFill() }.clipped()
         } else {
-            CameraPreview(session: camera.session)
+            CameraPreview(camera: camera)
         }
         #else
-        CameraPreview(session: camera.session)
+        CameraPreview(camera: camera)
         #endif
     }
 
-    private var hint: String {
+    private var hint: LocalizedStringKey {
         camera.quad == nil ? "Fit the whole board in view" : "Board found — tap to scan"
     }
 }
@@ -144,12 +144,13 @@ private struct BoardOutline: View {
 }
 
 private struct CameraPreview: UIViewRepresentable {
-    let session: AVCaptureSession
+    let camera: CameraController
 
     func makeUIView(context: Context) -> PreviewView {
         let view = PreviewView()
-        view.previewLayer.session = session
+        view.previewLayer.session = camera.session
         view.previewLayer.videoGravity = .resizeAspectFill
+        camera.attachPreview(view.previewLayer)
         return view
     }
 
@@ -186,6 +187,12 @@ final class CameraController: NSObject, @unchecked Sendable {
     @ObservationIgnored private var photoCompletion: ((UIImage?) -> Void)?
     @ObservationIgnored private let ciContext = CIContext()
     @ObservationIgnored private var configured = false
+    // Rotation: preview, analysed frames and photos all follow the interface orientation (portrait
+    // on iPhone; any orientation on iPad), so the outline lines up with what's on screen.
+    @ObservationIgnored private weak var previewLayer: AVCaptureVideoPreviewLayer?
+    @ObservationIgnored private var rotationCoordinator: AVCaptureDevice.RotationCoordinator?
+    @ObservationIgnored private var rotationObservation: NSKeyValueObservation?
+    @ObservationIgnored private var rotationAngle: CGFloat = 90
 
     @MainActor
     func start() async {
@@ -207,6 +214,38 @@ final class CameraController: NSObject, @unchecked Sendable {
         }
         isRunning = started
         hasTorch = device?.hasTorch ?? false
+        setUpRotation()
+    }
+
+    @MainActor
+    func attachPreview(_ layer: AVCaptureVideoPreviewLayer) {
+        previewLayer = layer
+        setUpRotation()
+    }
+
+    @MainActor
+    private func setUpRotation() {
+        guard rotationCoordinator == nil, let device, let previewLayer else { return }
+        let coordinator = AVCaptureDevice.RotationCoordinator(device: device, previewLayer: previewLayer)
+        rotationCoordinator = coordinator
+        applyRotation(coordinator.videoRotationAngleForHorizonLevelPreview)
+        rotationObservation = coordinator.observe(\.videoRotationAngleForHorizonLevelPreview, options: [.new]) { [weak self] coordinator, _ in
+            let angle = coordinator.videoRotationAngleForHorizonLevelPreview
+            DispatchQueue.main.async { self?.applyRotation(angle) }
+        }
+    }
+
+    @MainActor
+    private func applyRotation(_ angle: CGFloat) {
+        if let connection = previewLayer?.connection, connection.isVideoRotationAngleSupported(angle) {
+            connection.videoRotationAngle = angle
+        }
+        sessionQueue.async {
+            self.rotationAngle = angle
+            if let connection = self.videoOutput.connection(with: .video), connection.isVideoRotationAngleSupported(angle) {
+                connection.videoRotationAngle = angle
+            }
+        }
     }
 
     #if DEBUG
@@ -242,8 +281,8 @@ final class CameraController: NSObject, @unchecked Sendable {
         sessionQueue.async {
             let settings = AVCapturePhotoSettings()
             settings.photoQualityPrioritization = .speed
-            if let connection = self.photoOutput.connection(with: .video), connection.isVideoRotationAngleSupported(90) {
-                connection.videoRotationAngle = 90
+            if let connection = self.photoOutput.connection(with: .video), connection.isVideoRotationAngleSupported(self.rotationAngle) {
+                connection.videoRotationAngle = self.rotationAngle
             }
             self.photoOutput.capturePhoto(with: settings, delegate: self)
         }
@@ -273,8 +312,8 @@ final class CameraController: NSObject, @unchecked Sendable {
         videoOutput.setSampleBufferDelegate(self, queue: frameQueue)
         if session.canAddOutput(videoOutput) {
             session.addOutput(videoOutput)
-            if let connection = videoOutput.connection(with: .video), connection.isVideoRotationAngleSupported(90) {
-                connection.videoRotationAngle = 90
+            if let connection = videoOutput.connection(with: .video), connection.isVideoRotationAngleSupported(rotationAngle) {
+                connection.videoRotationAngle = rotationAngle
             }
         }
         session.commitConfiguration()

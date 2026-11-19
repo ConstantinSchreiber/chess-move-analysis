@@ -14,6 +14,11 @@ extension EngineScore {
         }
     }
 
+    var isMate: Bool {
+        if case .mate = value { return true }
+        return false
+    }
+
     /// "+1.24", "−0.30", "M3", "−M5".
     var shortText: String {
         switch value {
@@ -24,25 +29,6 @@ extension EngineScore {
         case .mate(let n):
             if n == 0 { return "#" }
             return (n > 0 ? "M" : "−M") + String(abs(n))
-        }
-    }
-
-    /// Plain-language verdict, e.g. "White is clearly better".
-    var verdict: String {
-        switch value {
-        case .mate(let n):
-            if n == 0 { return "Checkmate" }
-            let side = n > 0 ? "White" : "Black"
-            return "\(side) mates in \(abs(n))"
-        case .centipawns(let cp):
-            let side = cp > 0 ? "White" : "Black"
-            switch abs(cp) {
-            case ..<35: return "The position is equal"
-            case ..<90: return "\(side) is slightly better"
-            case ..<200: return "\(side) is clearly better"
-            case ..<500: return "\(side) is winning"
-            default: return "\(side) is completely winning"
-            }
         }
     }
 
@@ -105,37 +91,3 @@ struct ScoreChip: View {
 }
 
 /// Natural-language description of a move, e.g. "Knight from g1 to f3, capturing the bishop".
-enum MoveDescriber {
-    static func describe(_ move: Move, in position: Position) -> (title: String, detail: String) {
-        guard let piece = position[move.from] else { return (move.uci, "") }
-        let mover = "\(piece.color.name) \(piece.kind.name)"
-        if position.isCastling(move) {
-            let side = move.to.file == 6 ? "kingside" : "queenside"
-            return ("Castle \(side)", "\(piece.color.name) king to \(move.to.name), rook tucks in beside it.")
-        }
-        var title = "\(mover.capitalizedFirst) \(move.from.name) → \(move.to.name)"
-        var parts: [String] = []
-        if let captured = position.capturedPiece(by: move) {
-            parts.append(position.isEnPassant(move) ? "Captures the pawn en passant" : "Captures the \(captured.kind.name) on \(move.to.name)")
-        }
-        if let promotion = move.promotion {
-            parts.append("promotes to a \(promotion.name)")
-            title = "\(mover.capitalizedFirst) \(move.from.name) → \(move.to.name) = \(promotion.sanLetter)"
-        }
-        if let next = position.playing(move) {
-            if next.isCheckmate {
-                parts.append("checkmate")
-            } else if next.isCheck {
-                parts.append("gives check")
-            }
-        }
-        if parts.isEmpty { parts.append("Quiet move") }
-        var detail = parts.joined(separator: ", ")
-        detail = detail.capitalizedFirst + "."
-        return (title, detail)
-    }
-}
-
-extension String {
-    var capitalizedFirst: String { prefix(1).uppercased() + dropFirst() }
-}

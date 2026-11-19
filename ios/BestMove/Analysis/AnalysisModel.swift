@@ -48,13 +48,21 @@ final class AnalysisModel: Identifiable, Hashable {
     /// Whether Stockfish has finished booting at least once (for status wording).
     private(set) var engineBooted = StockfishEngine.shared.isReady
     private let historyID: UUID?
+    /// Opened from a scan that was recognised without corrections.
+    let isCleanScan: Bool
+    /// The engine has shown a solid result (depth 18+ or finished) for the starting position.
+    private(set) var hasSolidResult = false
+    /// The rating moment for this analysis has been considered (it counts once).
+    @ObservationIgnored var reviewMomentHandled = false
 
     @ObservationIgnored private var analysisTask: Task<Void, Never>?
     @ObservationIgnored private let settings: AppSettings
     @ObservationIgnored private let history: HistoryStore?
 
-    init(position: Position, orientation: PieceColor, settings: AppSettings, history: HistoryStore? = nil, historyID: UUID? = nil) {
+    init(position: Position, orientation: PieceColor, settings: AppSettings, history: HistoryStore? = nil, historyID: UUID? = nil,
+         isCleanScan: Bool = false) {
         tree = MoveTree(root: position)
+        self.isCleanScan = isCleanScan
         self.orientation = orientation
         self.settings = settings
         self.history = history
@@ -70,6 +78,7 @@ final class AnalysisModel: Identifiable, Hashable {
     var lastMove: Move? { tree[current].move }
     var line: [MoveTree.NodeID] { tree.line(through: current) }
     var canGoBack: Bool { current != MoveTree.root }
+    var isAtStart: Bool { current == MoveTree.root }
     var canGoForward: Bool { !tree[current].children.isEmpty }
 
     /// The engine snapshot, only if it belongs to the position on the board.
@@ -111,8 +120,9 @@ final class AnalysisModel: Identifiable, Hashable {
     var targetDepth: Int { settings.maxDepth + depthBonus }
 
     var subtitle: String {
-        let side = position.sideToMove == .white ? "White to move" : "Black to move"
-        return "\(side) · move \(position.fullmoveNumber)"
+        let move = position.fullmoveNumber
+        return position.sideToMove == .white ? String(localized: "White to move · move \(move)")
+                                             : String(localized: "Black to move · move \(move)")
     }
 
     // MARK: Engine
@@ -153,12 +163,12 @@ final class AnalysisModel: Identifiable, Hashable {
         switch position.status {
         case .checkmate(let winner):
             StockfishEngine.shared.stop()
-            status = .gameOver("Checkmate — \(winner.name) wins")
+            status = .gameOver(winner == .white ? String(localized: "Checkmate — White wins") : String(localized: "Checkmate — Black wins"))
             analysisTask = nil
             return
         case .stalemate:
             StockfishEngine.shared.stop()
-            status = .gameOver("Stalemate — it's a draw")
+            status = .gameOver(String(localized: "Stalemate — it's a draw"))
             analysisTask = nil
             return
         default:
@@ -167,7 +177,7 @@ final class AnalysisModel: Identifiable, Hashable {
         guard position.isValidForAnalysis else {
             StockfishEngine.shared.stop()
             analysisTask = nil
-            status = .unavailable("This position isn't legal, so it can't be analysed.")
+            status = .unavailable(String(localized: "This position isn't legal, so it can't be analysed."))
             return
         }
         if currentSnapshot == nil { status = .starting }
@@ -195,6 +205,11 @@ final class AnalysisModel: Identifiable, Hashable {
                 if snapshot.isFinal { self.status = .finished }
                 if isRoot, snapshot.isFinal || snapshot.depth >= 18, let score = snapshot.lines.first?.score, let historyID {
                     history?.updateEvaluation(score.shortText, for: historyID)
+                }
+                // Solid enough to show off: depth 18, the search finished, or a forced mate is proven.
+                if isRoot, !self.hasSolidResult, let score = snapshot.lines.first?.score,
+                   snapshot.isFinal || snapshot.depth >= 18 || (snapshot.depth >= 10 && score.bound == .exact && score.isMate) {
+                    self.hasSolidResult = true
                 }
             }
         }

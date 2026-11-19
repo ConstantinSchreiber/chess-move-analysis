@@ -6,6 +6,27 @@ struct BoardArrow: Hashable {
     let to: Square
     var color: Color = Palette.gold
     var opacity: Double = 0.85
+
+    static func path(from: CGPoint, to: CGPoint, squareSize s: CGFloat) -> Path {
+        let dx = to.x - from.x, dy = to.y - from.y
+        let length = hypot(dx, dy)
+        let ux = dx / length, uy = dy / length
+        let shaft = s * 0.16, headWidth = s * 0.44, headLength = s * 0.42
+        let start = CGPoint(x: from.x + ux * s * 0.18, y: from.y + uy * s * 0.18)
+        let tip = CGPoint(x: to.x - ux * s * 0.12, y: to.y - uy * s * 0.12)
+        let base = CGPoint(x: tip.x - ux * headLength, y: tip.y - uy * headLength)
+        let px = -uy, py = ux
+        var path = Path()
+        path.move(to: CGPoint(x: start.x + px * shaft / 2, y: start.y + py * shaft / 2))
+        path.addLine(to: CGPoint(x: base.x + px * shaft / 2, y: base.y + py * shaft / 2))
+        path.addLine(to: CGPoint(x: base.x + px * headWidth / 2, y: base.y + py * headWidth / 2))
+        path.addLine(to: tip)
+        path.addLine(to: CGPoint(x: base.x - px * headWidth / 2, y: base.y - py * headWidth / 2))
+        path.addLine(to: CGPoint(x: base.x - px * shaft / 2, y: base.y - py * shaft / 2))
+        path.addLine(to: CGPoint(x: start.x - px * shaft / 2, y: start.y - py * shaft / 2))
+        path.closeSubpath()
+        return path
+    }
 }
 
 enum SquareMark: Hashable {
@@ -71,6 +92,7 @@ struct BoardView: View {
             selected = nil
             promotion = nil
         }
+        .environment(\.layoutDirection, .leftToRight)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Chess board")
         .accessibilityIdentifier("board")
@@ -158,7 +180,7 @@ struct BoardView: View {
     private func arrowsLayer(_ geo: BoardGeometry) -> some View {
         Canvas { context, _ in
             for arrow in arrows where arrow.from != arrow.to {
-                context.fill(arrowPath(from: geo.center(of: arrow.from), to: geo.center(of: arrow.to), squareSize: geo.squareSize),
+                context.fill(BoardArrow.path(from: geo.center(of: arrow.from), to: geo.center(of: arrow.to), squareSize: geo.squareSize),
                              with: .color(arrow.color.opacity(arrow.opacity)))
             }
         }
@@ -213,27 +235,6 @@ struct BoardView: View {
             }
         }
         .transition(.opacity)
-    }
-
-    private func arrowPath(from: CGPoint, to: CGPoint, squareSize s: CGFloat) -> Path {
-        let dx = to.x - from.x, dy = to.y - from.y
-        let length = hypot(dx, dy)
-        let ux = dx / length, uy = dy / length
-        let shaft = s * 0.16, headWidth = s * 0.44, headLength = s * 0.42
-        let start = CGPoint(x: from.x + ux * s * 0.18, y: from.y + uy * s * 0.18)
-        let tip = CGPoint(x: to.x - ux * s * 0.12, y: to.y - uy * s * 0.12)
-        let base = CGPoint(x: tip.x - ux * headLength, y: tip.y - uy * headLength)
-        let px = -uy, py = ux
-        var path = Path()
-        path.move(to: CGPoint(x: start.x + px * shaft / 2, y: start.y + py * shaft / 2))
-        path.addLine(to: CGPoint(x: base.x + px * shaft / 2, y: base.y + py * shaft / 2))
-        path.addLine(to: CGPoint(x: base.x + px * headWidth / 2, y: base.y + py * headWidth / 2))
-        path.addLine(to: tip)
-        path.addLine(to: CGPoint(x: base.x - px * headWidth / 2, y: base.y - py * headWidth / 2))
-        path.addLine(to: CGPoint(x: base.x - px * shaft / 2, y: base.y - py * shaft / 2))
-        path.addLine(to: CGPoint(x: start.x - px * shaft / 2, y: start.y - py * shaft / 2))
-        path.closeSubpath()
-        return path
     }
 
     // MARK: Interaction
@@ -321,6 +322,8 @@ struct MiniBoardView: View {
     let position: Position
     var orientation: PieceColor = .white
     var lastMove: Move?
+    var arrows: [BoardArrow] = []
+    var cornerRadius: CGFloat = 8
 
     @Environment(\.boardTheme) private var theme
     @Environment(\.pieceSet) private var pieceSet
@@ -340,8 +343,13 @@ struct MiniBoardView: View {
                 let image = context.resolve(Image(pieceSet.imageName(piece)))
                 context.draw(image, in: geo.rect(of: square))
             }
+            for arrow in arrows where arrow.from != arrow.to {
+                context.fill(BoardArrow.path(from: geo.center(of: arrow.from), to: geo.center(of: arrow.to), squareSize: geo.squareSize),
+                             with: .color(arrow.color.opacity(arrow.opacity)))
+            }
         }
         .aspectRatio(1, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+        .environment(\.layoutDirection, .leftToRight)
     }
 }

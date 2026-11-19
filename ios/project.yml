@@ -9,7 +9,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
-    MARKETING_VERSION: "1.0"
+    MARKETING_VERSION: "1.1"
     CURRENT_PROJECT_VERSION: "1"
     # Set your Apple Developer Team ID here (or in Xcode → Signing & Capabilities).
     DEVELOPMENT_TEAM: "RP44S72CV4"
@@ -46,7 +46,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.constantinschreiber.bestmove
         PRODUCT_NAME: BestMove
         INFOPLIST_KEY_CFBundleDisplayName: Best Move
-        TARGETED_DEVICE_FAMILY: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_EMIT_LOC_STRINGS: YES
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SUPPORTS_MACCATALYST: NO
@@ -67,6 +69,8 @@ targets:
         UIUserInterfaceStyle: Dark
         UIRequiredDeviceCapabilities: [arm64]
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        # iPad: every orientation and resizable windows (required for iPad apps).
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         NSCameraUsageDescription: Best Move uses the camera to photograph a chess board so it can read the position. Photos stay on your device.

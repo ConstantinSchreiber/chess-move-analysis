@@ -1,5 +1,5 @@
 {
-  "_comment": "Screenshot captions per language: [eyebrow, headline]; *text* is drawn in gold, | forces a line break. Rendered by ios/scripts/store-screenshots.py.",
+  "_comment": "Screenshot captions per language: [eyebrow, headline]; *text* is drawn in gold, | forces a line break. Rendered by ios/scripts/store-screenshots.mjs.",
   "shots": ["hero", "camera", "review", "analysis", "setup", "home"],
   "captions": {
     "en": [["Stockfish 19", "See the *best move* in seconds"], ["Scan", "Point at *any board* on any screen"], ["Smart check", "Knows every piece and *whose move* it is"], ["Analysis", "Explore every line, *fully offline*"], ["Set up", "Any position, *by hand or FEN*"], ["Free", "No account. No ads. *No tracking.*"]],
@@ -15,10 +15,11 @@
     "nl": [["Stockfish 19", "De *beste zet* in seconden"], ["Scannen", "Richt op *elk bord* op elk scherm"], ["Controle", "Herkent elk stuk en *wie aan zet* is"], ["Analyse", "Elke variant, *volledig offline*"], ["Opzetten", "Elke stelling, *met de hand of FEN*"], ["Gratis", "Geen account. *Geen advertenties.*"]],
     "id": [["Stockfish 19", "*Langkah terbaik* dalam hitungan detik"], ["Pindai", "Arahkan ke *papan di layar mana pun*"], ["Periksa", "Mengenali setiap bidak dan *giliran*"], ["Analisis", "Jelajahi setiap variasi, *offline*"], ["Posisi", "Posisi apa pun, *manual atau FEN*"], ["Gratis", "Tanpa akun. Tanpa iklan. *Tanpa pelacakan.*"]],
     "ja": [["Stockfish 19", "数秒で*最善手*がわかる"], ["スキャン", "画面上の|*どんな盤面*にも対応"], ["自動チェック", "駒も*手番*も自動で認識"], ["解析", "すべての変化を|*オフライン*で"], ["局面設定", "*手動配置やFEN*で|自由に"], ["無料", "アカウント不要・|*広告なし*"]],
-    "zh": [["Stockfish 19", "几秒钟找到*最佳着法*"], ["扫描", "对准*任意屏幕上的棋盘*"], ["自动核对", "识别每个棋子|和*轮到谁走*"], ["分析", "探索所有变化，|*完全离线*"], ["摆棋", "*手动摆棋*或粘贴 FEN"], ["免费", "无需账户，无广告，|*无追踪*"]]
+    "zh": [["Stockfish 19", "几秒钟找到*最佳着法*"], ["扫描", "对准*任意屏幕上的棋盘*"], ["自动核对", "识别每个棋子|和*轮到谁走*"], ["分析", "探索所有变化，|*完全离线*"], ["摆棋", "*手动摆棋*或粘贴 FEN"], ["免费", "无需账户，无广告，|*无追踪*"]],
+    "ar": [["Stockfish 19", "*أفضل نقلة* خلال ثوانٍ"], ["مسح", "وجّه الكاميرا إلى|*أي رقعة* على أي شاشة"], ["تدقيق ذكي", "يتعرّف على كل قطعة و*صاحب الدور*"], ["تحليل", "استكشف كل التفرعات *دون إنترنت*"], ["ترتيب", "أي وضعية *يدويًا أو عبر FEN*"], ["مجاني", "بلا حساب. بلا إعلانات.|*بلا تتبّع.*"]]
   },
   "locale_language": {
     "en-US": "en", "en-GB": "en", "en-AU": "en", "en-CA": "en", "de-DE": "de", "fr-FR": "fr", "es-ES": "es", "es-MX": "es",
-    "pt-BR": "pt", "it": "it", "ru": "ru", "uk": "uk", "tr": "tr", "pl": "pl", "nl-NL": "nl", "id": "id", "ja": "ja", "zh-Hans": "zh"
+    "pt-BR": "pt", "it": "it", "ru": "ru", "uk": "uk", "tr": "tr", "pl": "pl", "nl-NL": "nl", "id": "id", "ja": "ja", "zh-Hans": "zh", "ar-SA": "ar"
   }
 }

@@ -62,7 +62,9 @@ struct ScanReviewView: View {
 
             Button {
                 Haptics.success()
-                app.analyze(position: editor.finalPosition, orientation: editor.orientation, source: .scan)
+                // Clean = the pieces were analysed exactly as recognised (side to move etc. may change).
+                let clean = !review.isSample && editor.finalPosition.boardFEN == review.result.position.boardFEN
+                app.analyze(position: editor.finalPosition, orientation: editor.orientation, source: .scan, cleanScan: clean)
             } label: {
                 Label("Analyze", systemImage: "waveform.path.ecg")
             }
@@ -105,26 +107,35 @@ struct ScanReviewView: View {
         return VStack(alignment: .leading, spacing: 12) {
             if uncertain == 0 {
                 infoLine(icon: "checkmark.seal.fill", tint: Palette.positive,
-                         text: "Every square read confidently. Still, give the board a quick look against the photo.")
+                         text: String(localized: "Every square read confidently. Still, give the board a quick look against the photo."))
             } else {
                 infoLine(icon: "exclamationmark.triangle.fill", tint: Palette.warning,
-                         text: "\(uncertain) \(uncertain == 1 ? "square looks" : "squares look") uncertain — outlined on the board. Tap a piece below, then a square to fix it.")
+                         text: String(localized: "\(uncertain) squares look uncertain — outlined on the board. Tap a piece below, then a square to fix it."))
             }
             switch review.result.evidence {
             case .highlight(let mover, let move):
-                let moveText = move.map { " (\($0.from.name) → \($0.to.name))" } ?? ""
-                infoLine(icon: "arrow.right.circle.fill", tint: Palette.gold,
-                         text: "\(mover.name) just moved\(moveText), so it's \(mover.opposite.name)'s turn.")
+                infoLine(icon: "arrow.right.circle.fill", tint: Palette.gold, text: Self.lastMoveText(mover: mover, move: move))
             case .check(let color):
                 infoLine(icon: "bolt.circle.fill", tint: Palette.gold,
-                         text: "\(color.name)'s king is in check, so it's \(color.name)'s move.")
+                         text: color == .white ? String(localized: "White's king is in check, so it's White's move.")
+                                               : String(localized: "Black's king is in check, so it's Black's move."))
             case .unknown:
                 infoLine(icon: "questionmark.circle.fill", tint: Palette.warning,
-                         text: "No last-move highlight found. Please check who is to move.")
+                         text: String(localized: "No last-move highlight found. Please check who is to move."))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .card(padding: 16, radius: 20)
+    }
+
+    private static func lastMoveText(mover: PieceColor, move: Move?) -> String {
+        guard let move else {
+            return mover == .white ? String(localized: "White just moved, so it's Black's turn.")
+                                   : String(localized: "Black just moved, so it's White's turn.")
+        }
+        let from = move.from.name, to = move.to.name
+        return mover == .white ? String(localized: "White just moved (\(from) → \(to)), so it's Black's turn.")
+                               : String(localized: "Black just moved (\(from) → \(to)), so it's White's turn.")
     }
 
     private func infoLine(icon: String, tint: Color, text: String) -> some View {

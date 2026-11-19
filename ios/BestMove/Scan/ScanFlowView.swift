@@ -27,6 +27,7 @@ struct ScanFlowView: View {
         .presentationBackground(Palette.background)
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(32)
+        .largeSheetOnPad()
         .fullScreenCover(isPresented: $showCamera) {
             CameraScannerView(onCapture: { image in
                 showCamera = false
@@ -112,7 +113,7 @@ struct ScanFlowView: View {
                     }
                     .buttonStyle(PressableStyle())
 
-                    Label("Recognition and analysis run entirely on your iPhone. Photos never leave the device.",
+                    Label("Recognition and analysis run entirely on this device. Photos never leave it.",
                           systemImage: "lock.shield")
                         .font(.system(size: 13))
                         .foregroundStyle(Palette.textTertiary)
@@ -139,7 +140,7 @@ struct ScanFlowView: View {
         .confirmationDialog("Try a sample", isPresented: $showSamples) {
             ForEach(SampleImages.all) { sample in
                 Button(sample.title) {
-                    if let image = sample.image { recognize(image) }
+                    if let image = sample.image { recognize(image, isSample: true) }
                 }
             }
         }
@@ -152,7 +153,7 @@ struct ScanFlowView: View {
         recognize(image)
     }
 
-    private func recognize(_ image: UIImage) {
+    private func recognize(_ image: UIImage, isSample: Bool = false) {
         Haptics.tap()
         withAnimation(.easeOut(duration: 0.2)) {
             failure = nil
@@ -173,9 +174,10 @@ struct ScanFlowView: View {
             switch result {
             case .success(let recognition):
                 Haptics.success()
-                path.append(ScanReview(result: recognition))
+                path.append(ScanReview(result: recognition, isSample: isSample))
             case .failure(let error):
                 Haptics.warning()
+                app.reviewPrompter.recordProblem()
                 withAnimation { failure = (image, error.localizedDescription) }
             }
         }
@@ -186,6 +188,8 @@ struct ScanFlowView: View {
 struct ScanReview: Hashable {
     let id = UUID()
     let result: RecognitionResult
+    /// A bundled "Try a sample" image (doesn't count as the person's own success).
+    var isSample = false
 
     static func == (lhs: ScanReview, rhs: ScanReview) -> Bool { lhs.id == rhs.id }
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
@@ -195,8 +199,8 @@ struct ScanReview: Hashable {
 
 private struct SourceCard: View {
     let icon: String
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -217,8 +221,8 @@ private struct SourceCard: View {
 
 private struct SourceRow: View {
     let icon: String
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
 
     var body: some View {
         HStack(spacing: 14) {
@@ -327,7 +331,7 @@ struct SampleImages {
     }
 
     static let all: [Sample] = [
-        Sample(id: "sample-screenshot", title: "Screenshot of a game"),
-        Sample(id: "sample-photo", title: "Photo of a monitor"),
+        Sample(id: "sample-screenshot", title: String(localized: "Screenshot of a game")),
+        Sample(id: "sample-photo", title: String(localized: "Photo of a monitor")),
     ]
 }

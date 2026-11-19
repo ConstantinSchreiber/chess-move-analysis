@@ -10,8 +10,9 @@
 //   node ios/scripts/asc.cjs new-version 1.1         create the next version (then build, metadata, submit)
 //   node ios/scripts/asc.cjs build [number]          attach the newest valid build (or that build number)
 //   node ios/scripts/asc.cjs metadata [locale,...]   push docs/store/metadata.json (texts, URLs, categories)
-//   node ios/scripts/asc.cjs screenshots [locale,...]  replace the 6.9" screenshots with
-//                                                    docs/store/screenshots/<lang>/*.png (store-screenshots.mjs)
+//   node ios/scripts/asc.cjs screenshots [iphone|ipad|both] [locale,...]
+//                                                    replace the 6.9" iPhone / 13" iPad screenshots with
+//                                                    docs/store/screenshots[-ipad]/<lang>/*.png (store-screenshots.mjs)
 //   node ios/scripts/asc.cjs review-notes [file]     review notes from docs/store/review-notes.txt;
 //                                                    optionally attach a file (e.g. a screen recording)
 //   node ios/scripts/asc.cjs submit                  submit the editable version for review, or resubmit
@@ -31,7 +32,10 @@ const PORT = 9333;
 const PROFILE = process.env.ASC_CHROME_PROFILE || path.join(os.homedir(), 'Library/Application Support/BestMove-ASC-Chrome');
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const STORE = path.resolve(__dirname, '../../docs/store');
-const SCREENSHOT_TYPE = 'APP_IPHONE_67';   // 6.9" iPhone, 1320 x 2868
+const SCREENSHOT_TYPES = {
+  iphone: { type: 'APP_IPHONE_67', dir: 'screenshots' },             // 6.9" iPhone, 1320 x 2868
+  ipad: { type: 'APP_IPAD_PRO_3GEN_129', dir: 'screenshots-ipad' },  // 13" iPad, 2064 x 2752
+};
 const LIVE = new Set(['READY_FOR_SALE', 'READY_FOR_DISTRIBUTION', 'REPLACED_WITH_NEW_VERSION',
   'REMOVED_FROM_SALE', 'DEVELOPER_REMOVED_FROM_SALE']);
 
@@ -190,38 +194,30 @@ const commands = {
     console.log('categories, copyright, release type ok');
   },
 
-  async screenshots(call, locales) {
-    const spec = JSON.parse(fs.readFileSync(path.join(STORE, 'captions.json'), 'utf8'));
-    const { ver } = await editable(call);
-    const only = list(locales);
-    const locs = check('version localizations', await call('GET', `v1/appStoreVersions/${ver}/appStoreVersionLocalizations?limit=50`)).data;
-    for (const loc of locs) {
-      const locale = loc.attributes.locale;
-      if (only && !only.includes(locale)) continue;
-      const dir = path.join(STORE, 'screenshots', spec.locale_language[locale] || 'en');
-      if (!fs.existsSync(dir)) { console.log(locale, `skipped: ${dir} missing (run ios/scripts/store-screenshots.mjs)`); continue; }
-      const files = fs.readdirSync(dir).filter(f => f.endsWith('.png')).sort();
-      const sets = check('screenshot sets', await call('GET', `v1/appStoreVersionLocalizations/${loc.id}/appScreenshotSets?include=appScreenshots`));
-      let set = sets.data.find(s => s.attributes.screenshotDisplayType === SCREENSHOT_TYPE);
-      if (set) for (const s of set.relationships.appScreenshots.data || []) await call('DELETE', `v1/appScreenshots/${s.id}`);
-      else set = check('create set', await call('POST', 'v1/appScreenshotSets', { data: { type: 'appScreenshotSets',
-        attributes: { screenshotDisplayType: SCREENSHOT_TYPE },
-        relationships: { appStoreVersionLocalization: { data: { type: 'appStoreVersionLocalizations', id: loc.id } } } } })).data;
-      const done = [];
-      for (const f of files) {
-        try { await upload(call, 'appScreenshots', path.join(dir, f), { appScreenshotSet: { data: { type: 'appScreenshotSets', id: set.id } } }); done.push('ok'); }
-        catch (e) { done.push(`${f} FAILED (${e.message})`); }
-      }
-      console.log(locale, done.join(' '));
-    }
+  async screenshots(call, ...args) {
+    const devices = ['iphone', 'ipad'].includes(args[0]) ? [args.shift()] : args[0] === 'both' ? (args.shift(), ['iphone', 'ipad']) : ['iphone', 'ipad'];
+    for (const device of devices) await uploadScreenshots(call, SCREENSHOT_TYPES[device], list(args[0]));
   },
-
   async 'review-notes'(call, attachment) {
     const notes = fs.readFileSync(path.join(STORE, 'review-notes.txt'), 'utf8').trim();
     if (notes.length > 4000) throw new Error(`review notes are ${notes.length} characters; the limit is 4000`);
     const { ver } = await editable(call);
-    const detail = check('review detail', await call('GET', `v1/appStoreVersions/${ver}/appStoreReviewDetail`)).data;
-    if (!detail) throw new Error('No App Review information yet: fill in the contact once in App Store Connect.');
+    let detail = check('review detail', await call('GET', `v1/appStoreVersions/${ver}/appStoreReviewDetail`)).data;
+    if (!detail) {
+      // A new version starts without App Review information: copy the contact from the newest earlier version.
+      const v = check('versions', await call('GET', `v1/apps/${APP}/appStoreVersions?limit=20&fields[appStoreVersions]=createdDate`));
+      let previous = null;
+      for (const d of v.data.filter(d => d.id !== ver).sort((a, b) => b.attributes.createdDate.localeCompare(a.attributes.createdDate))) {
+        previous = check('review detail', await call('GET', `v1/appStoreVersions/${d.id}/appStoreReviewDetail`)).data;
+        if (previous) break;
+      }
+      if (!previous) throw new Error('No App Review information yet: fill in the contact once in App Store Connect.');
+      const keep = ['contactFirstName', 'contactLastName', 'contactPhone', 'contactEmail', 'demoAccountRequired'];
+      detail = check('create review detail', await call('POST', 'v1/appStoreReviewDetails', { data: { type: 'appStoreReviewDetails',
+        attributes: Object.fromEntries(keep.map(k => [k, previous.attributes[k]])),
+        relationships: { appStoreVersion: { data: { type: 'appStoreVersions', id: ver } } } } })).data;
+      console.log('App Review contact copied from the previous version');
+    }
     check('notes', await call('PATCH', `v1/appStoreReviewDetails/${detail.id}`,
       { data: { type: 'appStoreReviewDetails', id: detail.id, attributes: { notes } } }));
     console.log(`review notes updated (${notes.length} characters)`);
@@ -262,6 +258,31 @@ const commands = {
     console.log(json(await call(method.toUpperCase(), p, payload)));
   },
 };
+
+async function uploadScreenshots(call, kind, only) {
+  const spec = JSON.parse(fs.readFileSync(path.join(STORE, 'captions.json'), 'utf8'));
+  const { ver } = await editable(call);
+  const locs = check('version localizations', await call('GET', `v1/appStoreVersions/${ver}/appStoreVersionLocalizations?limit=50`)).data;
+  for (const loc of locs) {
+    const locale = loc.attributes.locale;
+    if (only && !only.includes(locale)) continue;
+    const dir = path.join(STORE, kind.dir, spec.locale_language[locale] || 'en');
+    if (!fs.existsSync(dir)) { console.log(locale, `skipped: ${dir} missing (run ios/scripts/store-screenshots.mjs)`); continue; }
+    const files = fs.readdirSync(dir).filter(f => f.endsWith('.png')).sort();
+    const sets = check('screenshot sets', await call('GET', `v1/appStoreVersionLocalizations/${loc.id}/appScreenshotSets?include=appScreenshots`));
+    let set = sets.data.find(s => s.attributes.screenshotDisplayType === kind.type);
+    if (set) for (const s of set.relationships.appScreenshots.data || []) await call('DELETE', `v1/appScreenshots/${s.id}`);
+    else set = check('create set', await call('POST', 'v1/appScreenshotSets', { data: { type: 'appScreenshotSets',
+      attributes: { screenshotDisplayType: kind.type },
+      relationships: { appStoreVersionLocalization: { data: { type: 'appStoreVersionLocalizations', id: loc.id } } } } })).data;
+    const done = [];
+    for (const f of files) {
+      try { await upload(call, 'appScreenshots', path.join(dir, f), { appScreenshotSet: { data: { type: 'appScreenshotSets', id: set.id } } }); done.push('ok'); }
+      catch (e) { done.push(`${f} FAILED (${e.message})`); }
+    }
+    console.log(kind.type, locale, done.join(' '));
+  }
+}
 
 // Reserve, upload the parts, commit with the MD5 checksum (screenshots, review attachments, ...).
 async function upload(call, type, file, relationships) {

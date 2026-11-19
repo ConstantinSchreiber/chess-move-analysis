@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 import ChessCore
 import StockfishKit
 
@@ -6,34 +7,34 @@ struct AnalysisView: View {
     @Bindable var model: AnalysisModel
     @Environment(AppModel.self) private var app
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.requestReview) private var requestReview
+    @Environment(\.scenePhase) private var scenePhase
     @State private var editing = false
     @State private var copiedFEN = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
-                .padding(.horizontal, 16)
-                .padding(.top, 6)
-                .padding(.bottom, 14)
-            boardSection
-                .padding(.horizontal, 12)
-            ScrollView {
-                VStack(spacing: 14) {
-                    statusRow
-                    bestMoveCard
-                    linesSection
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 14)
-                .padding(.bottom, 24)
+        GeometryReader { proxy in
+            if Self.isWide(proxy.size) {
+                wideLayout(proxy.size)
+            } else {
+                compactLayout
+                    // iPad portrait: a column as wide as the height leaves room for, not wall to wall.
+                    .frame(maxWidth: Self.columnWidth(proxy.size))
+                    .frame(maxWidth: .infinity)
             }
-            .scrollIndicators(.hidden)
-            bottomBar
         }
         .background(Palette.background.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
         .onAppear { model.start() }
         .onDisappear { model.stop() }
+        .task(id: model.hasSolidResult) { await considerReviewPrompt() }
+        #if DEBUG
+        .task(id: model.hasSolidResult) {
+            // -demoShareCard: write the share image to tmp/share-card.png once the result is solid.
+            guard model.hasSolidResult, ProcessInfo.processInfo.arguments.contains("-demoShareCard") else { return }
+            try? shareImage.card.pngData()?.write(to: FileManager.default.temporaryDirectory.appendingPathComponent("share-card.png"))
+        }
+        #endif
         .sheet(isPresented: $editing) {
             PositionEditorSheet(initial: model.position, orientation: model.orientation, title: "Edit position") { position, orientation in
                 editing = false
@@ -42,11 +43,85 @@ struct AnalysisView: View {
         }
     }
 
+    // MARK: Layouts
+
+    /// Landscape iPad (and other wide windows): board left, engine panel right.
+    static func isWide(_ size: CGSize) -> Bool { size.width >= 700 && size.width > size.height * 1.15 }
+
+    /// Portrait column: the board grows with the window height while header, panel and move bar
+    /// (about 540 pt) stay fully visible below it.
+    static func columnWidth(_ size: CGSize) -> CGFloat { min(820, max(640, size.height - 540)) }
+
+    /// iPhone and narrow windows: header, board, scrolling panel, move bar.
+    private var compactLayout: some View {
+        VStack(spacing: 0) {
+            header
+                .padding(.horizontal, 16)
+                .padding(.top, 6)
+                .padding(.bottom, 14)
+            boardSection
+                .padding(.horizontal, 12)
+            ScrollView {
+                panel
+                    .padding(.horizontal, 16)
+                    .padding(.top, 14)
+                    .padding(.bottom, 24)
+            }
+            .scrollIndicators(.hidden)
+            bottomBar
+        }
+    }
+
+    private func wideLayout(_ size: CGSize) -> some View {
+        let headerHeight: CGFloat = 64
+        let side = max(240, min(size.height - headerHeight - 28, size.width * 0.58))
+        return VStack(spacing: 0) {
+            header
+                .padding(.horizontal, 20)
+                .padding(.top, 6)
+                .padding(.bottom, 14)
+            HStack(alignment: .top, spacing: 24) {
+                boardSection
+                    .frame(width: side + 18)   // + eval bar and its spacing
+                VStack(spacing: 0) {
+                    ScrollView {
+                        panel.padding(.bottom, 24)
+                    }
+                    .scrollIndicators(.hidden)
+                    bottomBar
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+
+    private var panel: some View {
+        VStack(spacing: 14) {
+            statusRow
+            bestMoveCard
+            linesSection
+        }
+    }
+
     // MARK: Header
 
+    /// The rating moment: a clean scan has just produced a solid best move. Asks a couple of seconds
+    /// later, while the result is on screen, unless the person has moved on (see `ReviewPrompter`).
+    private func considerReviewPrompt() async {
+        guard model.isCleanScan, model.hasSolidResult, !model.reviewMomentHandled else { return }
+        model.reviewMomentHandled = true
+        guard app.reviewPrompter.recordCleanScanSuccess() else { return }
+        try? await Task.sleep(for: .seconds(2.5))
+        guard !Task.isCancelled, scenePhase == .active, !editing, model.isAtStart else { return }
+        app.reviewPrompter.didRequestReview()
+        requestReview()
+    }
+
     private var header: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             CircleIconButton(systemName: "chevron.left", label: "Back") { dismiss() }
+                .padding(.trailing, 4)
             VStack(alignment: .leading, spacing: 3) {
                 Text("Analysis")
                     .font(.display(24))
@@ -54,6 +129,8 @@ struct AnalysisView: View {
                 Text(model.subtitle)
                     .font(.mono)
                     .textCase(.uppercase)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(Palette.textSecondary)
                     .contentTransition(.numericText())
             }
@@ -62,6 +139,17 @@ struct AnalysisView: View {
                 Haptics.tap()
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) { model.flip() }
             }
+            ShareLink(item: shareImage, message: Text(shareMessage),
+                      preview: SharePreview(shareTitle, image: Image("Logo"))) {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Palette.textPrimary)
+                    .frame(width: 44, height: 44)
+                    .background(.ultraThinMaterial, in: Circle())
+                    .overlay(Circle().strokeBorder(Palette.stroke))
+            }
+            .buttonStyle(PressableStyle())
+            .accessibilityLabel("Share")
             Menu {
                 Button { editing = true } label: { Label("Edit position", systemImage: "square.and.pencil") }
                 Button {
@@ -81,6 +169,28 @@ struct AnalysisView: View {
             }
             .accessibilityLabel("More")
         }
+    }
+
+    // MARK: Sharing
+
+    private var shareImage: ShareCardImage {
+        let line = model.displayLines.first
+        return ShareCardImage(card: ShareCard(position: model.position, orientation: model.orientation, lastMove: model.lastMove,
+                                              best: model.bestMove, san: line?.tokens.first?.san, score: line?.score,
+                                              theme: app.settings.boardTheme, pieceSet: app.settings.pieceSet))
+    }
+
+    private var shareTitle: String {
+        if let san = model.displayLines.first?.tokens.first?.san { return String(localized: "Best move: \(san)") }
+        return String(localized: "Chess position")
+    }
+
+    private var shareMessage: String {
+        let link = AppStoreLinks.app.absoluteString
+        if let line = model.displayLines.first, let san = line.tokens.first?.san {
+            return String(localized: "Best move: \(san) (\(line.score.shortText)). Found with Best Move, the free chess scanner: \(link)")
+        }
+        return String(localized: "Find the best move in any chess position with Best Move: \(link)")
     }
 
     private var lichessURL: URL {
@@ -103,6 +213,7 @@ struct AnalysisView: View {
                 .shadow(color: .black.opacity(0.45), radius: 24, y: 12)
         }
         .fixedSize(horizontal: false, vertical: true)
+        .environment(\.layoutDirection, .leftToRight)
     }
 
     private var arrows: [BoardArrow] {
@@ -157,20 +268,23 @@ struct AnalysisView: View {
         let snapshot = model.currentSnapshot
         switch model.status {
         case .starting:
-            return model.engineBooted ? "Stockfish is thinking…" : "Starting Stockfish…"
+            return model.engineBooted ? String(localized: "Stockfish is thinking…") : String(localized: "Starting Stockfish…")
         case .running:
-            guard let snapshot, snapshot.depth > 0 else { return "Stockfish is thinking…" }
-            return "Depth \(snapshot.depth) · \(Self.formatNPS(snapshot.nps))"
+            guard let snapshot, snapshot.depth > 0 else { return String(localized: "Stockfish is thinking…") }
+            let depth = snapshot.depth, speed = Self.formatNPS(snapshot.nps)
+            return String(localized: "Depth \(depth) · \(speed)")
         case .paused:
-            return snapshot.map { "Paused at depth \($0.depth)" } ?? "Paused"
+            guard let depth = snapshot?.depth else { return String(localized: "Paused") }
+            return String(localized: "Paused at depth \(depth)")
         case .finished:
-            return "Depth \(snapshot?.depth ?? model.targetDepth) reached"
+            let depth = snapshot?.depth ?? model.targetDepth
+            return String(localized: "Depth \(depth) reached")
         case .gameOver(let text), .unavailable(let text):
             return text
         }
     }
 
-    private var statusAction: (title: String, run: () -> Void)? {
+    private var statusAction: (title: LocalizedStringKey, run: () -> Void)? {
         switch model.status {
         case .running, .starting: ("Pause", { model.togglePause() })
         case .paused: ("Resume", { model.togglePause() })
@@ -180,9 +294,12 @@ struct AnalysisView: View {
     }
 
     static func formatNPS(_ nps: Int) -> String {
-        if nps >= 1_000_000 { return String(format: "%.1fM nodes/s", Double(nps) / 1_000_000) }
-        if nps >= 1_000 { return "\(nps / 1_000)k nodes/s" }
-        return "\(nps) nodes/s"
+        if nps >= 1_000_000 {
+            let millions = (Double(nps) / 1_000_000).formatted(.number.precision(.fractionLength(1)))
+            return String(localized: "\(millions)M nodes/s")
+        }
+        if nps >= 1_000 { return String(localized: "\(nps / 1_000)k nodes/s") }
+        return String(localized: "\(nps) nodes/s")
     }
 
     // MARK: Best move
@@ -299,9 +416,10 @@ struct AnalysisView: View {
         .padding(.bottom, 4)
         .background(Palette.background.shadow(.drop(color: .black.opacity(0.5), radius: 12, y: -4)))
         .overlay(alignment: .top) { Rectangle().fill(Palette.stroke).frame(height: 1) }
+        .environment(\.layoutDirection, .leftToRight)
     }
 
-    private func navButton(_ icon: String, _ label: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+    private func navButton(_ icon: String, _ label: LocalizedStringKey, enabled: Bool, action: @escaping () -> Void) -> some View {
         Button {
             Haptics.tap()
             action()
@@ -352,6 +470,7 @@ private struct LineRow: View {
         }
         .padding(.leading, 12)
         .padding(.vertical, 8)
+        .environment(\.layoutDirection, .leftToRight)   // chess notation reads left to right
     }
 }
 

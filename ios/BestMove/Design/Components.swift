@@ -70,7 +70,7 @@ struct IconTile: View {
 /// Round, glassy icon button used in headers.
 struct CircleIconButton: View {
     let systemName: String
-    var label: String
+    var label: LocalizedStringKey
     let action: () -> Void
 
     var body: some View {
@@ -89,7 +89,7 @@ struct CircleIconButton: View {
 
 /// Two-option segmented control in the app's style.
 struct SegmentedPicker<Value: Hashable>: View {
-    let options: [(value: Value, title: String)]
+    let options: [(value: Value, title: LocalizedStringKey)]
     @Binding var selection: Value
     @Namespace private var namespace
 
@@ -156,7 +156,7 @@ struct ToggleChip: View {
 
 /// Header used at the top of sheets: optional back button, title, close button.
 struct SheetHeader: View {
-    let title: String
+    let title: LocalizedStringKey
     var onBack: (() -> Void)?
     let onClose: () -> Void
 
@@ -172,6 +172,19 @@ struct SheetHeader: View {
                 .minimumScaleFactor(0.7)
             Spacer()
             CircleIconButton(systemName: "xmark", label: "Close", action: onClose)
+        }
+    }
+}
+
+extension View {
+    /// iPad: a page-sized sheet instead of the small form sheet, so boards stay large. iPhone sheets
+    /// are full width either way.
+    @ViewBuilder
+    func largeSheetOnPad() -> some View {
+        if #available(iOS 18.0, *) {
+            presentationSizing(.page)
+        } else {
+            self
         }
     }
 }

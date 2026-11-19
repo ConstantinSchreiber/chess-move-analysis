@@ -9,19 +9,19 @@ struct BoardTheme: Identifiable, Hashable {
     /// Tint laid over the from/to squares of the last move.
     let highlight: Color
 
-    static let walnut = BoardTheme(id: "walnut", name: "Walnut",
+    static let walnut = BoardTheme(id: "walnut", name: String(localized: "Walnut", comment: "Board colour theme"),
                                    light: Color(hex: 0xEEDCBC), dark: Color(hex: 0xB0855F),
                                    highlight: Color(hex: 0xF2C14E, opacity: 0.42))
-    static let slate = BoardTheme(id: "slate", name: "Slate",
+    static let slate = BoardTheme(id: "slate", name: String(localized: "Slate", comment: "Board colour theme"),
                                   light: Color(hex: 0xDCE1E6), dark: Color(hex: 0x7C8C9E),
                                   highlight: Color(hex: 0x9FD2FF, opacity: 0.45))
-    static let emerald = BoardTheme(id: "emerald", name: "Tournament",
+    static let emerald = BoardTheme(id: "emerald", name: String(localized: "Tournament", comment: "Board colour theme"),
                                     light: Color(hex: 0xEDEDD3), dark: Color(hex: 0x76975A),
                                     highlight: Color(hex: 0xF5F06A, opacity: 0.45))
-    static let obsidian = BoardTheme(id: "obsidian", name: "Obsidian",
+    static let obsidian = BoardTheme(id: "obsidian", name: String(localized: "Obsidian", comment: "Board colour theme"),
                                      light: Color(hex: 0xC7C0B3), dark: Color(hex: 0x5D5850),
                                      highlight: Color(hex: 0xE6B85C, opacity: 0.45))
-    static let rosewood = BoardTheme(id: "rosewood", name: "Rosewood",
+    static let rosewood = BoardTheme(id: "rosewood", name: String(localized: "Rosewood", comment: "Board colour theme"),
                                      light: Color(hex: 0xF0D9C8), dark: Color(hex: 0xA2665A),
                                      highlight: Color(hex: 0xFFC46B, opacity: 0.42))
 
@@ -36,7 +36,7 @@ enum PieceSet: String, CaseIterable, Identifiable {
 
     var name: String {
         switch self {
-        case .cburnett: "Classic"
+        case .cburnett: String(localized: "Classic", comment: "Piece set name")
         case .merida: "Merida"
         case .chessnut: "Chessnut"
         }

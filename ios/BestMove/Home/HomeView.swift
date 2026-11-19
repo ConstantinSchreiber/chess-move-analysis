@@ -3,13 +3,18 @@ import ChessCore
 
 struct HomeView: View {
     @Environment(AppModel.self) private var app
+    static let columnWidth: CGFloat = 680
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 HeroView()
                     .frame(height: 440)
-                    .overlay(alignment: .bottomLeading) { headline }
+                    .overlay(alignment: .bottom) {
+                        headline
+                            .frame(maxWidth: Self.columnWidth, alignment: .leading)
+                            .frame(maxWidth: .infinity)
+                    }
 
                 VStack(alignment: .leading, spacing: 14) {
                     Button {
@@ -40,6 +45,9 @@ struct HomeView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 22)
                 .padding(.bottom, 40)
+                // iPad and wide windows: a centred column instead of stretched cards.
+                .frame(maxWidth: Self.columnWidth)
+                .frame(maxWidth: .infinity)
             }
         }
         .scrollIndicators(.hidden)
@@ -108,7 +116,7 @@ struct HomeView: View {
         HStack(spacing: 10) {
             Image(systemName: "cpu")
                 .foregroundStyle(Palette.gold)
-            Text("Stockfish 19 runs entirely on your iPhone — no account, no upload, works offline.")
+            Text("Stockfish 19 runs entirely on this device — no account, no upload, works offline.")
                 .font(.system(size: 13))
                 .foregroundStyle(Palette.textTertiary)
         }
@@ -117,8 +125,8 @@ struct HomeView: View {
 
 private struct ActionTile: View {
     let icon: String
-    let title: String
-    let subtitle: String
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

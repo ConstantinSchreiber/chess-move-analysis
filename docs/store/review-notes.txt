@@ -1,3 +1,6 @@
+NEW IN 1.1
+iPad support (adaptive layout, also in landscape and Split View); the interface is translated into 15 languages; the analysis can be shared as an image (system share sheet); the app asks for a rating with the system prompt (SwiftUI requestReview) after a successful scan. Nothing else changed: still no accounts, purchases, network requests or external services.
+
 1. SCREEN RECORDING
 Attached to this submission (App Review Information > Attachment, best-move-review.mov). Recorded on a physical iPhone 14 Pro Max, starting with launching the app: Scan position > Camera > the board on a monitor is found > shutter > Review position > Analyze > best move and engine lines. While the camera is open, a laptop with a password manager was visible behind the monitor; only that background area is blurred for privacy, the app's interface is unedited. The app has no accounts, no user-generated content and no paid content.
 
@@ -15,7 +18,7 @@ Best Move is a chess study tool for chess players of all levels: club players, b
 None. The app uses no servers, accounts, analytics, advertising, payment processors or cloud AI services, and it works fully offline. Board recognition runs on the device with two Core ML models bundled in the app. The analysis uses the open-source Stockfish chess engine, compiled into the app and running on the device. The only link out is the optional menu item "Open on lichess.org", which opens the position on that public website in Safari.
 
 5. REGIONAL DIFFERENCES
-None. The app works identically in every region. The interface is in English everywhere.
+None. The app works identically in every region; the interface follows the device language (15 languages, English otherwise).
 
 6. THIRD-PARTY MATERIAL AND REGULATION
 The app does not operate in a regulated industry. All third-party material is open source and used under its licence:

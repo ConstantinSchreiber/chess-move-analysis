@@ -35,3 +35,7 @@ ml/testdata/private/
 
 # Rendered App Store screenshots (regenerate: node ios/scripts/store-screenshots.mjs)
 docs/store/screenshots/
+docs/store/screenshots-ipad/
+# Raw per-language captures (ios/scripts/store-raw.sh); ~150 MB, reproducible.
+docs/store/raw/iphone/
+docs/store/raw/ipad/
